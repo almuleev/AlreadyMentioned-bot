@@ -1,0 +1,17 @@
+services:
+  bot:
+    build: .
+    env_file:
+      - .env
+    environment:
+      DATABASE_PATH: /app/data/already_mentioned.db
+    volumes:
+      - bot_data:/app/data
+      - model_cache:/app/models
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 30s
+
+volumes:
+  bot_data:
+  model_cache:

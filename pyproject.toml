@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "already-mentioned"
+version = "0.1.0"
+description = "Self-hosted Telegram bot for finding confirmed answers"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "aiogram[proxy]>=3,<4",
+    "aiosqlite>=0.20,<1",
+    "fastembed>=0.4,<1",
+    "numpy>=1.26,<3",
+    "python-dotenv>=1,<2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8,<10",
+    "pytest-asyncio>=0.24,<2",
+    "ruff>=0.6,<1",
+]
+
+[project.scripts]
+already-mentioned = "already_mentioned.main:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

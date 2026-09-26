@@ -1,0 +1,68 @@
+"""Long-polling entry point."""
+
+import asyncio
+import logging
+
+from aiogram import Dispatcher
+
+from already_mentioned.bot.factory import create_bot
+from already_mentioned.config import load_settings
+from already_mentioned.database.connection import connect_database
+from already_mentioned.database.schema import initialize_database
+from already_mentioned.handlers.feedback import router as feedback_router
+from already_mentioned.handlers.management import router as management_router
+from already_mentioned.handlers.messages import router as messages_router
+from already_mentioned.handlers.solve import router as solve_router
+from already_mentioned.handlers.start import router as start_router
+from already_mentioned.repositories.chats import ChatRepository
+from already_mentioned.repositories.feedback import FeedbackRepository
+from already_mentioned.repositories.solutions import SolutionRepository
+from already_mentioned.services.confirmations import ForgetConfirmations
+from already_mentioned.services.embeddings import FastEmbedEmbeddingService
+from already_mentioned.services.reply_cache import ReplyCache
+from already_mentioned.services.search import SearchService
+
+
+async def run() -> None:
+    settings = load_settings()
+    bot = create_bot(settings)
+    dispatcher = Dispatcher()
+    dispatcher.include_router(start_router)
+    dispatcher.include_router(solve_router)
+    dispatcher.include_router(management_router)
+    dispatcher.include_router(messages_router)
+    dispatcher.include_router(feedback_router)
+    database = None
+    try:
+        database = await connect_database(settings.database_path)
+        await initialize_database(database)
+        chats = ChatRepository(database)
+        solutions = SolutionRepository(database)
+        embeddings = FastEmbedEmbeddingService()
+        await dispatcher.start_polling(
+            bot,
+            close_bot_session=False,
+            reply_cache=ReplyCache(),
+            confirmations=ForgetConfirmations(),
+            chats=chats,
+            solutions=solutions,
+            feedback=FeedbackRepository(database),
+            embeddings=embeddings,
+            search=SearchService(embeddings, chats, solutions),
+        )
+    finally:
+        if database is not None:
+            await database.close()
+        await bot.session.close()
+
+
+def main() -> None:
+    logging.basicConfig(level=logging.INFO)
+    try:
+        asyncio.run(run())
+    except KeyboardInterrupt:
+        logging.info("Bot stopped")
+
+
+if __name__ == "__main__":
+    main()
