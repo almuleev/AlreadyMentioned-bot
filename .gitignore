@@ -16,5 +16,5 @@ dist/
 *.sqlite3
 data/
 .cache/
-models/
+/models/
 .fastembed_cache/

@@ -10,7 +10,7 @@ router = Router()
 @router.message(CommandStart())
 async def start(message: Message) -> None:
     await message.answer(
-        "AlreadyMentioned ищет подтверждённые ответы в этом чате. "
-        "Администратор сохраняет решение через /solve. "
+        "AlreadyMentioned ищет сохранённые ответы в этом чате. "
+        "Ответ администратора на вопрос сохраняется автоматически. "
         "Напишите /help, чтобы узнать правила и команды."
     )

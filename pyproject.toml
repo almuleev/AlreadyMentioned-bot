@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "already-mentioned"
 version = "0.1.0"
-description = "Self-hosted Telegram bot for finding confirmed answers"
+description = "Telegram-бот для поиска сохранённых ответов в чате"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [

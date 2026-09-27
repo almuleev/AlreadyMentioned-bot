@@ -100,3 +100,12 @@ class SolutionRepository:
             (embedding, solution_id),
         )
         await self.connection.commit()
+
+    async def delete_by_answer(self, chat_id: int, answer_message_id: int) -> bool:
+        """Remove a saved answer in this chat and its cascaded feedback."""
+        cursor = await self.connection.execute(
+            "DELETE FROM solutions WHERE chat_id = ? AND answer_message_id = ?",
+            (chat_id, answer_message_id),
+        )
+        await self.connection.commit()
+        return cursor.rowcount > 0

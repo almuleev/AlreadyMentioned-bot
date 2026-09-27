@@ -46,6 +46,9 @@ class ReplyCache:
         self._discard_expired()
         return self._items.get((chat_id, answer_message_id))
 
+    def discard(self, chat_id: int, answer_message_id: int) -> None:
+        self._items.pop((chat_id, answer_message_id), None)
+
     def clear_chat(self, chat_id: int) -> None:
         for key in list(self._items):
             if key[0] == chat_id:

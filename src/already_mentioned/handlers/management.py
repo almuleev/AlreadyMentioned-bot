@@ -36,8 +36,9 @@ async def _require_group_admin(message: Message, bot: Bot) -> bool:
 @router.message(Command("help"))
 async def help_command(message: Message) -> None:
     await message.answer(
-        "AlreadyMentioned предлагает ссылки на подтверждённые ответы этого чата.\n"
+        "AlreadyMentioned предлагает ссылки на сохранённые ответы этого чата.\n"
         f"{SOLVE_USAGE}\n"
+        "/undo — ответить на сохранённый ответ и удалить его (администратор).\n"
         "/status — число решений и порог совпадения.\n"
         "/threshold 0.88 — изменить порог (администратор).\n"
         "/forget — удалить решения и оценки после подтверждения (администратор)."

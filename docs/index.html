@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#101923" />
     <meta
       name="description"
-      content="AlreadyMentioned — локальный Telegram-бот, который находит подтверждённые ответы в чате поддержки и даёт ссылку на решение."
+      content="AlreadyMentioned — локальный Telegram-бот, который показывает сохранённый ответ администратора в reply и оставляет ссылку на оригинал."
     />
     <title>AlreadyMentioned — ответы, которые уже были</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
@@ -19,13 +19,12 @@
           <span class="brand-mark" aria-hidden="true">a<span>·</span></span>
           <span>AlreadyMentioned</span>
         </a>
-        <nav class="site-nav" aria-label="Main navigation">
-          <a href="#workflow"><span class="ru">Как работает</span><span class="en">How it works</span></a>
-          <a href="#principles"><span class="ru">Принципы</span><span class="en">Principles</span></a>
-          <a href="#setup"><span class="ru">Запуск</span><span class="en">Setup</span></a>
+        <nav class="site-nav" aria-label="Основная навигация">
+          <a href="#workflow">Как работает</a>
+          <a href="#principles">Принципы</a>
+          <a href="#setup">Запуск</a>
         </nav>
         <div class="header-actions">
-          <button class="language-switch" type="button" aria-label="Switch language" id="language-switch">EN</button>
           <a class="header-github" href="https://github.com/almuleev/AlreadyMentioned-bot" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
         </div>
       </header>
@@ -33,80 +32,56 @@
       <main id="top">
         <section class="hero" aria-labelledby="hero-title">
           <div class="hero-copy">
-            <div class="eyebrow"><span class="status-dot"></span><span class="ru">Локальный MVP · Telegram</span><span class="en">Local MVP · Telegram</span></div>
-            <h1 id="hero-title"><span class="ru">Ответ уже был.<br /><em>Теперь его легко найти.</em></span><span class="en">The answer is already there.<br /><em>Now it is easy to find.</em></span></h1>
-            <p class="hero-lead"><span class="ru">AlreadyMentioned находит подтверждённые ответы на повторяющиеся вопросы в Telegram-чате и возвращает ссылку на оригинальное решение.</span><span class="en">AlreadyMentioned finds confirmed answers to repeated questions in a Telegram chat and links back to the original solution.</span></p>
+            <div class="eyebrow"><span class="status-dot"></span>Локальный MVP · Telegram</div>
+            <h1 id="hero-title">Ответ уже был.<br /><em>Теперь его легко найти.</em></h1>
+            <p class="hero-lead">AlreadyMentioned находит сохранённые ответы администраторов на повторяющиеся вопросы в Telegram-чате, показывает ответ в reply и оставляет ссылку на оригинал.</p>
             <div class="hero-actions">
-              <a class="button button-primary" href="https://github.com/almuleev/AlreadyMentioned-bot" target="_blank" rel="noopener noreferrer"><span class="ru">Смотреть код</span><span class="en">View the code</span><span aria-hidden="true">↗</span></a>
-              <a class="button button-secondary" href="https://github.com/almuleev/AlreadyMentioned-bot/blob/main/docs/GUIDE.ru.md" target="_blank" rel="noopener noreferrer"><span class="ru">Руководство</span><span class="en">User guide (RU)</span><span aria-hidden="true">→</span></a>
+              <a class="button button-primary" href="https://github.com/almuleev/AlreadyMentioned-bot" target="_blank" rel="noopener noreferrer">Смотреть код<span aria-hidden="true">↗</span></a>
+              <a class="button button-secondary" href="https://github.com/almuleev/AlreadyMentioned-bot/blob/main/docs/GUIDE.ru.md" target="_blank" rel="noopener noreferrer">Руководство<span aria-hidden="true">→</span></a>
             </div>
-            <p class="hero-note"><span class="ru">Без генерации ответов. Без платных API. Данные остаются под вашим контролем.</span><span class="en">No generated answers. No paid APIs. Your data stays under your control.</span></p>
+            <p class="hero-note">Без генерации ответов. Без платных API. Данные остаются под вашим контролем.</p>
           </div>
 
-          <div class="conversation-wrap" aria-label="Example Telegram conversation">
-            <div class="conversation-head"><span class="head-icon">a·</span><div><strong>AlreadyMentioned Test</strong><small><span class="ru">пример диалога</span><span class="en">example conversation</span></small></div><span class="head-dots">···</span></div>
-            <div class="chat-line chat-line-user"><span class="ru">Как войти в личный кабинет?</span><span class="en">How do I sign in to my account?</span><time>10:42</time></div>
-            <div class="chat-line chat-line-answer"><div class="reply-quote"><span class="ru">Как войти в личный кабинет?</span><span class="en">How do I sign in to my account?</span></div><span class="ru">Откройте раздел «Личный кабинет» на сайте.</span><span class="en">Open the “My Account” section on the website.</span><time>10:43</time></div>
-            <div class="chat-line chat-line-command">/solve <time>10:43</time></div>
-            <div class="chat-line chat-line-bot"><span class="bot-avatar">a·</span><div class="bot-bubble"><span class="ru">Похоже, это уже обсуждали. Возможно, поможет: <u>ссылка на решение ↗</u></span><span class="en">Looks like this came up before. This may help: <u>link to the solution ↗</u></span><div class="feedback-row"><span>👍 <span class="ru">Помогло</span><span class="en">Helpful</span></span><span>👎 <span class="ru">Не подходит</span><span class="en">Not relevant</span></span></div></div></div>
-            <div class="conversation-caption"><span class="ru">Один чат. Одно лучшее подтверждённое решение.</span><span class="en">One chat. One best confirmed solution.</span></div>
+          <div class="conversation-wrap" aria-label="Пример переписки в Telegram">
+            <div class="conversation-head"><span class="head-icon">a·</span><div><strong>Тестовый чат AlreadyMentioned</strong><small>пример диалога</small></div><span class="head-dots">···</span></div>
+            <div class="chat-line chat-line-user">Как войти в личный кабинет?<time>10:42</time></div>
+            <div class="chat-line chat-line-answer"><div class="reply-quote">Как войти в личный кабинет?</div>Откройте раздел «Личный кабинет» на сайте.<time>10:43</time></div>
+            <div class="chat-line chat-line-user">Где найти вход в мой кабинет?<time>11:02</time></div>
+            <div class="chat-line chat-line-bot"><span class="bot-avatar">a·</span><div class="bot-bubble"><div class="reply-quote">Где найти вход в мой кабинет?</div>Похожий ответ из этого чата:<blockquote class="answer-quote">Откройте раздел «Личный кабинет» на сайте.</blockquote><div class="feedback-row"><span>👍 Помогло</span><span>👎 Не подходит</span></div><div class="source-row">📎 Оригинал</div></div></div>
+            <div class="conversation-caption">Один чат. Одно лучшее сохранённое решение.</div>
           </div>
         </section>
 
         <section class="workflow section" id="workflow" aria-labelledby="workflow-title">
-          <div class="section-heading"><span class="section-kicker">01 / WORKFLOW</span><h2 id="workflow-title"><span class="ru">Простая цепочка — полезный ответ</span><span class="en">A simple path to a useful answer</span></h2><p><span class="ru">Бот опирается на решения людей, которые уже помогли в этом чате.</span><span class="en">The bot relies on answers already confirmed by people in this chat.</span></p></div>
+          <div class="section-heading"><span class="section-kicker">01 / СЦЕНАРИЙ</span><h2 id="workflow-title">Простая цепочка — полезный ответ</h2><p>Бот опирается на ответы администраторов этого чата.</p></div>
           <div class="steps">
-            <article class="step"><span class="step-number">01</span><div class="step-icon">?</div><h3><span class="ru">Участник спрашивает</span><span class="en">Someone asks</span></h3><p><span class="ru">В группе появляется текстовый вопрос. Бот не импортирует старую переписку.</span><span class="en">A text question appears in the group. Old chat history is not imported.</span></p></article>
-            <article class="step"><span class="step-number">02</span><div class="step-icon">↳</div><h3><span class="ru">Администратор подтверждает</span><span class="en">An admin confirms</span></h3><p><span class="ru">Администратор отвечает на вопрос, затем отвечает на свой ответ командой <code>/solve</code>.</span><span class="en">An admin replies to the question, then replies to their own answer with <code>/solve</code>.</span></p></article>
-            <article class="step"><span class="step-number">03</span><div class="step-icon">↗</div><h3><span class="ru">Бот даёт ссылку</span><span class="en">The bot links back</span></h3><p><span class="ru">На похожий новый вопрос он показывает одно лучшее решение — если сходство достаточно высокое.</span><span class="en">For a similar new question, it shows the single best solution when similarity is high enough.</span></p></article>
+            <article class="step"><span class="step-number">01</span><div class="step-icon">?</div><h3>Участник спрашивает</h3><p>В группе появляется текстовый вопрос. Бот не импортирует старую переписку.</p></article>
+            <article class="step"><span class="step-number">02</span><div class="step-icon">↳</div><h3>Администратор отвечает</h3><p>Администратор отвечает через reply на вопрос. Подходящий ответ сохраняется без сообщения бота; ошибку можно отменить через <code>/undo</code>.</p></article>
+            <article class="step"><span class="step-number">03</span><div class="step-icon">↗</div><h3>Бот показывает ответ</h3><p>На похожий новый вопрос он отвечает цитатой лучшего решения и оставляет ссылку на оригинал.</p></article>
           </div>
         </section>
 
         <section class="principles section" id="principles" aria-labelledby="principles-title">
-          <div class="section-heading"><span class="section-kicker">02 / PRINCIPLES</span><h2 id="principles-title"><span class="ru">Предсказуемый поиск вместо догадок</span><span class="en">Grounded search instead of guesses</span></h2></div>
+          <div class="section-heading"><span class="section-kicker">02 / ПРИНЦИПЫ</span><h2 id="principles-title">Предсказуемый поиск вместо догадок</h2></div>
           <div class="principle-grid">
-            <article class="principle"><div class="principle-symbol">◎</div><h3><span class="ru">Только этот чат</span><span class="en">Chat by chat</span></h3><p><span class="ru">Решения разных чатов изолированы. Каждый чат настраивает собственный порог совпадения.</span><span class="en">Solutions stay isolated by chat. Each chat has its own similarity threshold.</span></p></article>
-            <article class="principle"><div class="principle-symbol">≋</div><h3><span class="ru">Локальная модель</span><span class="en">Local model</span></h3><p><span class="ru">FastEmbed и multilingual E5 сравнивают вопросы по смыслу. Модель не сочиняет ответы.</span><span class="en">FastEmbed and multilingual E5 compare questions by meaning. The model does not write answers.</span></p></article>
-            <article class="principle"><div class="principle-symbol">◇</div><h3><span class="ru">Минимум данных</span><span class="en">Minimal data</span></h3><p><span class="ru">В SQLite попадают подтверждённые пары, оценки и настройки — не вся история сообщений.</span><span class="en">SQLite stores confirmed pairs, feedback, and settings — not the whole chat history.</span></p></article>
-            <article class="principle"><div class="principle-symbol">✳</div><h3><span class="ru">Контроль администратора</span><span class="en">Admin control</span></h3><p><span class="ru">Администратор подтверждает решения, меняет порог и удаляет данные чата через <code>/forget</code>.</span><span class="en">Admins confirm solutions, change the threshold, and remove chat data with <code>/forget</code>.</span></p></article>
+            <article class="principle"><div class="principle-symbol">◎</div><h3>Только этот чат</h3><p>Решения разных чатов изолированы. Каждый чат настраивает собственный порог совпадения.</p></article>
+            <article class="principle"><div class="principle-symbol">≋</div><h3>Локальная модель</h3><p>FastEmbed и multilingual E5 сравнивают вопросы по смыслу. Модель не сочиняет ответы.</p></article>
+            <article class="principle"><div class="principle-symbol">◇</div><h3>Минимум данных</h3><p>В SQLite попадают сохранённые пары, оценки и настройки — не вся история сообщений.</p></article>
+            <article class="principle"><div class="principle-symbol">✳</div><h3>Контроль администратора</h3><p>Ответы администратора сохраняются автоматически; отдельное решение удаляется через <code>/undo</code>, данные чата — через <code>/forget</code>.</p></article>
           </div>
         </section>
 
         <section class="setup section" id="setup" aria-labelledby="setup-title">
-          <div class="setup-copy"><span class="section-kicker">03 / GET STARTED</span><h2 id="setup-title"><span class="ru">Запустите у себя</span><span class="en">Run it yourself</span></h2><p><span class="ru">Python 3.12, aiogram 3, SQLite и Docker Compose. Токен Telegram остаётся в локальном <code>.env</code>; контейнер не открывает входящие порты.</span><span class="en">Python 3.12, aiogram 3, SQLite, and Docker Compose. Your Telegram token stays in a local <code>.env</code>; the container exposes no inbound ports.</span></p><a class="text-link" id="setup-readme" href="https://github.com/almuleev/AlreadyMentioned-bot/blob/main/README.md" target="_blank" rel="noopener noreferrer"><span class="ru">Полная инструкция в README</span><span class="en">Full setup instructions in README</span> <span aria-hidden="true">↗</span></a></div>
-          <div class="terminal"><div class="terminal-bar"><span></span><span></span><span></span><small>PowerShell</small></div><pre><code><span class="terminal-comment"># 1. Настройте .env / Configure .env</span>
+          <div class="setup-copy"><span class="section-kicker">03 / ЗАПУСК</span><h2 id="setup-title">Запустите у себя</h2><p>Python 3.12, aiogram 3, SQLite и Docker Compose. Токен Telegram остаётся в локальном <code>.env</code>; контейнер не открывает входящие порты.</p><a class="text-link" id="setup-readme" href="https://github.com/almuleev/AlreadyMentioned-bot/blob/main/README.md" target="_blank" rel="noopener noreferrer">Полная инструкция в README <span aria-hidden="true">↗</span></a></div>
+          <div class="terminal"><div class="terminal-bar"><span></span><span></span><span></span><small>PowerShell</small></div><pre><code><span class="terminal-comment"># 1. Настройте .env</span>
 <span class="terminal-command">docker compose build</span>
 <span class="terminal-command">docker compose up -d</span>
 <span class="terminal-command">docker compose logs -f bot</span></code></pre></div>
         </section>
       </main>
 
-      <footer class="site-footer"><div class="footer-brand"><span class="brand-mark" aria-hidden="true">a<span>·</span></span><div><strong>AlreadyMentioned</strong><small><span class="ru">Подтверждённые ответы — в нужный момент.</span><span class="en">Confirmed answers when they matter.</span></small></div></div><div class="footer-links"><a href="https://github.com/almuleev/AlreadyMentioned-bot" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://github.com/almuleev/AlreadyMentioned-bot/blob/main/docs/GUIDE.ru.md" target="_blank" rel="noopener noreferrer"><span class="ru">Руководство</span><span class="en">Guide (RU)</span></a><a href="https://github.com/almuleev/AlreadyMentioned-bot/blob/main/README.en.md" target="_blank" rel="noopener noreferrer">README EN</a></div></footer>
+      <footer class="site-footer"><div class="footer-brand"><span class="brand-mark" aria-hidden="true">a<span>·</span></span><div><strong>AlreadyMentioned</strong><small>Сохранённые ответы — в нужный момент.</small></div></div><div class="footer-links"><a href="https://github.com/almuleev/AlreadyMentioned-bot" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://github.com/almuleev/AlreadyMentioned-bot/blob/main/docs/GUIDE.ru.md" target="_blank" rel="noopener noreferrer">Руководство</a></div></footer>
     </div>
-    <script>
-      const languageSwitch = document.getElementById("language-switch");
-      const savedLanguage = localStorage.getItem("alreadyMentionedLanguage");
-      if (savedLanguage === "en") document.documentElement.lang = "en";
-      function updateLanguageSwitch() {
-        languageSwitch.textContent = document.documentElement.lang === "ru" ? "EN" : "RU";
-        languageSwitch.setAttribute("aria-label", document.documentElement.lang === "ru" ? "Switch to English" : "Переключить на русский");
-        document.title = document.documentElement.lang === "ru"
-          ? "AlreadyMentioned — ответы, которые уже были"
-          : "AlreadyMentioned — answers already confirmed";
-        document.querySelector('meta[name="description"]').content = document.documentElement.lang === "ru"
-          ? "AlreadyMentioned — локальный Telegram-бот, который находит подтверждённые ответы в чате поддержки и даёт ссылку на решение."
-          : "AlreadyMentioned is a self-hosted Telegram bot that finds confirmed answers in support chats and links to the original solution.";
-        document.getElementById("setup-readme").href = document.documentElement.lang === "ru"
-          ? "https://github.com/almuleev/AlreadyMentioned-bot/blob/main/README.md"
-          : "https://github.com/almuleev/AlreadyMentioned-bot/blob/main/README.en.md";
-      }
-      updateLanguageSwitch();
-      languageSwitch.addEventListener("click", () => {
-        document.documentElement.lang = document.documentElement.lang === "ru" ? "en" : "ru";
-        localStorage.setItem("alreadyMentionedLanguage", document.documentElement.lang);
-        updateLanguageSwitch();
-      });
-    </script>
   </body>
 </html>
 
