@@ -39,20 +39,31 @@ class SearchService:
         query = normalize_vector(await self.embeddings.embed_query(question))
         best: SearchMatch | None = None
         for solution in candidates:
-            data = solution.question_embedding
-            if not data:
-                passage = normalize_vector(
-                    await self.embeddings.embed_passage(solution.question_text)
-                )
-                data = passage.tobytes()
-                await self.solutions.set_embedding(solution.id, data)
-            try:
-                passage = np.frombuffer(data, dtype=np.float32)
-                similarity = cosine_similarity(query, passage)
-            except ValueError:
-                continue
-            if best is None or similarity > best.similarity:
-                best = SearchMatch(solution, similarity)
+            for text, data, save_embedding in (
+                (
+                    solution.question_text,
+                    solution.question_embedding,
+                    self.solutions.set_embedding,
+                ),
+                (
+                    solution.answer_text,
+                    solution.answer_embedding,
+                    self.solutions.set_answer_embedding,
+                ),
+            ):
+                if not data:
+                    passage = normalize_vector(
+                        await self.embeddings.embed_passage(text)
+                    )
+                    data = passage.tobytes()
+                    await save_embedding(solution.id, data)
+                try:
+                    passage = np.frombuffer(data, dtype=np.float32)
+                    similarity = cosine_similarity(query, passage)
+                except ValueError:
+                    continue
+                if best is None or similarity > best.similarity:
+                    best = SearchMatch(solution, similarity)
         if best is None or best.similarity < chat.similarity_threshold:
             return None
         return best

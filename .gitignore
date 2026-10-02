@@ -17,4 +17,5 @@ dist/
 data/
 .cache/
 /models/
+/training_runs/
 .fastembed_cache/

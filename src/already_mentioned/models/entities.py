@@ -21,6 +21,14 @@ class Solution:
     question_embedding: bytes
     question_link: str
     answer_link: str
+    answer_embedding: bytes | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class SolutionSummary:
+    solution: Solution
+    helpful: int
+    not_helpful: int
 
 
 @dataclass(frozen=True, slots=True)

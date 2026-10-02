@@ -95,6 +95,7 @@ async def test_admin_reply_chain_saved_once(
     assert (
         saved[0].question_embedding == np.array([1.0, 0.0], dtype=np.float32).tobytes()
     )
+    assert saved[0].answer_embedding == np.array([1.0, 0.0], dtype=np.float32).tobytes()
 
     await solve(command, bot, cache, chats, solutions, FakeEmbeddings())
     assert await solutions.count_for_chat(question.chat.id) == 1
@@ -245,6 +246,74 @@ async def test_autosave_skips_non_questions_and_missing_links(
     assert await remember_admin_answer(unlinked, bot, cache)
     await autosave_admin_answer(unlinked, cache, chats, solutions, FakeEmbeddings())
     assert await solutions.count_for_chat(answer.chat.id) == 0
+
+
+@pytest.mark.asyncio
+async def test_autosave_failure_is_silent_and_logs_safe_context(caplog) -> None:
+    secret = "SECRET_QUESTION_TOKEN"
+    question = make_message(
+        10,
+        text="Как войти в кабинет? " + secret,
+        user_id=100,
+        link="https://t.me/c/1/10",
+    )
+    answer = make_message(
+        11,
+        text="SECRET_ANSWER_TOKEN",
+        user_id=200,
+        reply_to_message=question,
+        link="https://t.me/c/1/11",
+    )
+    bot = SimpleNamespace(
+        get_chat_member=AsyncMock(
+            return_value=SimpleNamespace(status=ChatMemberStatus.ADMINISTRATOR)
+        )
+    )
+    cache = ReplyCache()
+    await remember_admin_answer(answer, bot, cache)
+    chats = SimpleNamespace(ensure_chat=AsyncMock())
+    solutions = SimpleNamespace(
+        get_by_pair=AsyncMock(return_value=None),
+        add_solution=AsyncMock(side_effect=RuntimeError(secret)),
+    )
+    await autosave_admin_answer(answer, cache, chats, solutions, FakeEmbeddings())
+    answer.answer.assert_not_awaited()
+    assert "operation=autosave_solution" in caplog.text
+    assert "chat_id=-1001234567890 message_id=11" in caplog.text
+    assert secret not in caplog.text
+    assert "SECRET_ANSWER_TOKEN" not in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_manual_save_failure_reports_without_logging_text(
+    repositories: tuple[ChatRepository, SolutionRepository], caplog
+) -> None:
+    chats, solutions = repositories
+    bot = SimpleNamespace(
+        get_chat_member=AsyncMock(
+            return_value=SimpleNamespace(status=ChatMemberStatus.ADMINISTRATOR)
+        )
+    )
+    question = make_message(
+        20, text="Как исправить SECRET_TEXT?", user_id=100,
+        link="https://t.me/c/1/20",
+    )
+    answer = make_message(
+        21, text="SECRET_ANSWER", user_id=200,
+        reply_to_message=question, link="https://t.me/c/1/21",
+    )
+    command = make_message(
+        22, text="/solve", user_id=200, reply_to_message=answer,
+    )
+    cache = ReplyCache()
+    await remember_admin_answer(answer, bot, cache)
+    solutions.add_solution = AsyncMock(side_effect=RuntimeError("SECRET_TEXT"))
+    await solve(command, bot, cache, chats, solutions, FakeEmbeddings())
+    assert "Не удалось сохранить" in command.answer.await_args.args[0]
+    assert "operation=save_solution" in caplog.text
+    assert "message_id=22" in caplog.text
+    assert "SECRET_TEXT" not in caplog.text
+    assert "SECRET_ANSWER" not in caplog.text
 
 
 @pytest.mark.asyncio

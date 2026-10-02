@@ -37,6 +37,9 @@ async def test_inspect_question_reports_score_without_changing_database(
         async def embed_query(self, _text):
             return np.array([0.88, np.sqrt(1 - 0.88**2)], dtype=np.float32)
 
+        async def embed_passage(self, _text):
+            return np.array([0.0, 1.0], dtype=np.float32)
+
     monkeypatch.setattr(diagnostics, "FastEmbedEmbeddingService", FakeEmbeddings)
     result = await diagnostics.inspect_question(
         "Где открыть кабинет?", None, database_path

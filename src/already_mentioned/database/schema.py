@@ -1,50 +1,121 @@
-"""Initial SQLite schema for confirmed solutions and their feedback."""
+"""Versioned SQLite schema; version 1 is the original three-table layout."""
 
 import aiosqlite
 
+SCHEMA_VERSION = 2
+
+# Add consecutive target versions here when an existing table must change.
+# Each tuple runs inside the same transaction as its user_version update.
+MIGRATIONS: dict[int, tuple[str, ...]] = {
+    2: ("ALTER TABLE solutions ADD COLUMN answer_embedding BLOB",),
+}
+
+BASE_SCHEMA = (
+    """CREATE TABLE chats (
+        telegram_chat_id INTEGER PRIMARY KEY,
+        title TEXT NOT NULL,
+        similarity_threshold REAL NOT NULL DEFAULT 0.88
+            CHECK (similarity_threshold >= 0 AND similarity_threshold <= 1),
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )""",
+    """CREATE TABLE solutions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        chat_id INTEGER NOT NULL
+            REFERENCES chats(telegram_chat_id) ON DELETE CASCADE,
+        question_message_id INTEGER NOT NULL,
+        answer_message_id INTEGER NOT NULL,
+        question_text TEXT NOT NULL,
+        answer_text TEXT NOT NULL,
+        question_embedding BLOB NOT NULL,
+        question_link TEXT NOT NULL,
+        answer_link TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE (chat_id, question_message_id, answer_message_id)
+    )""",
+    "CREATE INDEX idx_solutions_chat_id ON solutions(chat_id)",
+    """CREATE TABLE feedback (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        solution_id INTEGER NOT NULL
+            REFERENCES solutions(id) ON DELETE CASCADE,
+        query_message_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+        vote TEXT NOT NULL CHECK (vote IN ('helpful', 'not_helpful')),
+        created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE (solution_id, query_message_id, user_id)
+    )""",
+    "CREATE INDEX idx_feedback_solution_id ON feedback(solution_id)",
+)
+
+REQUIRED_COLUMNS = {
+    "chats": {"telegram_chat_id", "title", "similarity_threshold", "created_at"},
+    "solutions": {
+        "id",
+        "chat_id",
+        "question_message_id",
+        "answer_message_id",
+        "question_text",
+        "answer_text",
+        "question_embedding",
+        "question_link",
+        "answer_link",
+        "created_at",
+    },
+    "feedback": {
+        "id",
+        "solution_id",
+        "query_message_id",
+        "user_id",
+        "vote",
+        "created_at",
+    },
+}
+
+
+async def _check_baseline(connection: aiosqlite.Connection) -> None:
+    for table, required in REQUIRED_COLUMNS.items():
+        async with connection.execute(f"PRAGMA table_info({table})") as cursor:
+            columns = {row[1] for row in await cursor.fetchall()}
+        if not required <= columns:
+            raise RuntimeError(f"SQLite schema is missing required columns in {table}")
+
 
 async def initialize_database(connection: aiosqlite.Connection) -> None:
-    """Create the MVP tables without importing or retaining chat history."""
-    await connection.executescript(
-        """
-        CREATE TABLE IF NOT EXISTS chats (
-            telegram_chat_id INTEGER PRIMARY KEY,
-            title TEXT NOT NULL,
-            similarity_threshold REAL NOT NULL DEFAULT 0.88
-                CHECK (similarity_threshold >= 0 AND similarity_threshold <= 1),
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-
-        CREATE TABLE IF NOT EXISTS solutions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            chat_id INTEGER NOT NULL
-                REFERENCES chats(telegram_chat_id) ON DELETE CASCADE,
-            question_message_id INTEGER NOT NULL,
-            answer_message_id INTEGER NOT NULL,
-            question_text TEXT NOT NULL,
-            answer_text TEXT NOT NULL,
-            question_embedding BLOB NOT NULL,
-            question_link TEXT NOT NULL,
-            answer_link TEXT NOT NULL,
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE (chat_id, question_message_id, answer_message_id)
-        );
-
-        CREATE INDEX IF NOT EXISTS idx_solutions_chat_id
-            ON solutions(chat_id);
-
-        CREATE TABLE IF NOT EXISTS feedback (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            solution_id INTEGER NOT NULL
-                REFERENCES solutions(id) ON DELETE CASCADE,
-            query_message_id INTEGER NOT NULL,
-            user_id INTEGER NOT NULL,
-            vote TEXT NOT NULL CHECK (vote IN ('helpful', 'not_helpful')),
-            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE (solution_id, query_message_id, user_id)
-        );
-
-        CREATE INDEX IF NOT EXISTS idx_feedback_solution_id
-            ON feedback(solution_id);
-        """
-    )
+    """Create or adopt the baseline, then apply each explicit migration once."""
+    await connection.execute("BEGIN IMMEDIATE")
+    try:
+        async with connection.execute("PRAGMA user_version") as cursor:
+            version = (await cursor.fetchone())[0]
+        if version > SCHEMA_VERSION:
+            raise RuntimeError("SQLite schema is newer than this bot version")
+        async with connection.execute(
+            "SELECT name FROM sqlite_master WHERE type = 'table' "
+            "AND name NOT LIKE 'sqlite_%'"
+        ) as cursor:
+            tables = {row[0] for row in await cursor.fetchall()}
+        if version == 0:
+            if not tables:
+                for statement in BASE_SCHEMA:
+                    await connection.execute(statement)
+            elif not REQUIRED_COLUMNS.keys() <= tables:
+                raise RuntimeError("Unversioned SQLite schema is incomplete or unknown")
+            await _check_baseline(connection)
+            version = 1
+            await connection.execute("PRAGMA user_version = 1")
+        else:
+            await _check_baseline(connection)
+            if version >= 2:
+                async with connection.execute("PRAGMA table_info(solutions)") as cursor:
+                    columns = {row[1] for row in await cursor.fetchall()}
+                if "answer_embedding" not in columns:
+                    raise RuntimeError("SQLite schema is missing answer_embedding")
+        for target in range(version + 1, SCHEMA_VERSION + 1):
+            statements = MIGRATIONS.get(target)
+            if not statements:
+                raise RuntimeError(f"Missing SQLite migration to version {target}")
+            for statement in statements:
+                await connection.execute(statement)
+            await connection.execute(f"PRAGMA user_version = {target}")
+        await connection.commit()
+    except BaseException:
+        await connection.rollback()
+        raise

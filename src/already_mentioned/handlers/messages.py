@@ -1,12 +1,12 @@
 """Reply with one saved answer for a likely new question."""
 
-import logging
 from html import escape
 
 from aiogram import Bot, F, Router
 from aiogram.enums import ChatType, ParseMode
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
+from already_mentioned.error_logging import log_operation_error
 from already_mentioned.handlers.solve import (
     autosave_admin_answer,
     remember_admin_answer,
@@ -58,8 +58,8 @@ async def handle_text(
         return
     try:
         match = await search.find_best(message.chat.id, message.text)
-    except Exception:
-        logging.exception("Search failed for chat %s", message.chat.id)
+    except Exception as error:
+        log_operation_error("search", message.chat.id, message.message_id, error)
         return
     if match is None:
         return
@@ -78,8 +78,11 @@ async def handle_text(
             [InlineKeyboardButton(text="📎 Оригинал", url=match.solution.answer_link)],
         ]
     )
-    await message.reply(
-        format_answer_preview(match.solution.answer_text),
-        parse_mode=ParseMode.HTML,
-        reply_markup=keyboard,
-    )
+    try:
+        await message.reply(
+            format_answer_preview(match.solution.answer_text),
+            parse_mode=ParseMode.HTML,
+            reply_markup=keyboard,
+        )
+    except Exception as error:
+        log_operation_error("send_answer", message.chat.id, message.message_id, error)

@@ -117,3 +117,36 @@ async def test_admin_reply_is_saved_without_a_bot_message() -> None:
     search.find_best.assert_not_awaited()
     answer.answer.assert_not_awaited()
     answer.reply.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_search_and_send_errors_log_only_safe_context(caplog) -> None:
+    secret = "SECRET_MESSAGE_AND_TOKEN"
+    message = make_message("Как войти в кабинет? " + secret)
+    search = SimpleNamespace(find_best=AsyncMock(side_effect=RuntimeError(secret)))
+    await handle_text(
+        message, SimpleNamespace(), ReplyCache(), search, None, None, None
+    )
+    message.reply.assert_not_awaited()
+    assert "operation=search chat_id=-1001 message_id=50" in caplog.text
+
+    solution = Solution(
+        id=7,
+        chat_id=-1001,
+        question_message_id=1,
+        answer_message_id=2,
+        question_text="Как войти?",
+        answer_text=secret,
+        question_embedding=b"SECRET_VECTOR",
+        question_link="https://t.me/c/1/1",
+        answer_link="https://t.me/c/1/2",
+    )
+    search.find_best = AsyncMock(return_value=SearchMatch(solution, 0.95))
+    message.reply.side_effect = RuntimeError(secret)
+    await handle_text(
+        message, SimpleNamespace(), ReplyCache(), search, None, None, None
+    )
+    assert "operation=send_answer chat_id=-1001 message_id=50" in caplog.text
+    assert "error_type=RuntimeError" in caplog.text
+    assert secret not in caplog.text
+    assert "SECRET_VECTOR" not in caplog.text

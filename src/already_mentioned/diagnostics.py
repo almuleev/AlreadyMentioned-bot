@@ -57,27 +57,31 @@ async def inspect_question(
         best = None
         skipped = 0
         for solution in candidates:
-            try:
-                if solution.question_embedding:
-                    passage = np.frombuffer(
-                        solution.question_embedding, dtype=np.float32
+            for source, text, data in (
+                ("вопрос", solution.question_text, solution.question_embedding),
+                ("ответ", solution.answer_text, solution.answer_embedding),
+            ):
+                try:
+                    passage = (
+                        np.frombuffer(data, dtype=np.float32)
+                        if data
+                        else await embeddings.embed_passage(text)
                     )
-                else:
-                    passage = await embeddings.embed_passage(solution.question_text)
-                score = cosine_similarity(query, passage)
-            except ValueError:
-                skipped += 1
-                continue
-            if best is None or score > best[0]:
-                best = (score, solution)
+                    score = cosine_similarity(query, passage)
+                except ValueError:
+                    skipped += 1
+                    continue
+                if best is None or score > best[0]:
+                    best = (score, solution, source)
 
     if best is None:
         print("Не удалось прочитать embeddings сохранённых решений.")
         return 1
 
-    score, solution = best
+    score, solution, source = best
     print(f"Чат: {chat_id}")
     print(f"Лучшее совпадение: {score:.4f}")
+    print(f"Совпало с: {source}")
     print(f"Порог чата: {chat.similarity_threshold:.2f}")
     if not is_question_candidate(question):
         print("Результат: бот промолчал бы — сообщение не прошло фильтр вопросов.")

@@ -38,6 +38,13 @@ class FakeEmbeddings(EmbeddingService):
 
     async def embed_passage(self, text: str) -> np.ndarray:
         self.passages.append(text)
+        if text in {
+            "Откройте страницу входа.",
+            "Используйте восстановление пароля.",
+            "Откройте настройки профиля.",
+            "Ответ другого чата.",
+        }:
+            return np.array([1.0, 1.0, 1.0, 0.0], dtype=np.float32)
         if text == "Как войти в личный кабинет?":
             return np.array([1.0, 0.0, 0.0, 0.0], dtype=np.float32)
         if text == "Как сбросить пароль?":
@@ -119,8 +126,9 @@ async def test_search_is_scoped_and_returns_one_strongest_match(
     match = await search.find_best(-1001, SAME_SOLUTION[1])
     assert match is not None and match.solution.id == login_id
     assert match.similarity >= 0.88
-    assert len(embeddings.passages) == 3  # Legacy empty vectors are backfilled.
+    assert len(embeddings.passages) == 6  # Both vectors are backfilled.
     assert (await solutions.get_for_chat(-1001, login_id)).question_embedding
+    assert (await solutions.get_for_chat(-1001, login_id)).answer_embedding
 
     wrong_words = await search.find_best(-1001, WORD_OVERLAP_DIFFERENT[0])
     assert wrong_words is not None and wrong_words.solution.id == reset_id
@@ -136,3 +144,58 @@ async def test_search_is_scoped_and_returns_one_strongest_match(
 
     await chats.set_threshold(-1001, 1.0)
     assert await search.find_best(-1001, SAME_SOLUTION[1]) is None
+
+
+@pytest.mark.asyncio
+async def test_search_finds_answer_content_and_backfills_old_answer(
+    storage: tuple[ChatRepository, SolutionRepository],
+) -> None:
+    chats, solutions = storage
+    await chats.ensure_chat(-1001, "Первый")
+    await chats.ensure_chat(-1002, "Второй")
+    answer_text = "Настройте двухфакторную аутентификацию в профиле."
+    answer_vector = np.array([0.0, 1.0], dtype=np.float32)
+    question_vector = np.array([1.0, 0.0], dtype=np.float32)
+    solution_id = await solutions.add_solution(
+        chat_id=-1001,
+        question_message_id=1,
+        answer_message_id=2,
+        question_text="Как защитить аккаунт?",
+        answer_text=answer_text,
+        question_embedding=question_vector.tobytes(),
+        question_link="https://t.me/c/1/1",
+        answer_link="https://t.me/c/1/2",
+    )
+    await solutions.add_solution(
+        chat_id=-1002,
+        question_message_id=1,
+        answer_message_id=2,
+        question_text="Как защитить аккаунт?",
+        answer_text="Другой ответ",
+        question_embedding=question_vector.tobytes(),
+        answer_embedding=answer_vector.tobytes(),
+        question_link="https://t.me/c/2/1",
+        answer_link="https://t.me/c/2/2",
+    )
+
+    class AnswerEmbeddings(EmbeddingService):
+        def __init__(self) -> None:
+            self.passages = []
+
+        async def embed_query(self, text: str) -> np.ndarray:
+            return answer_vector
+
+        async def embed_passage(self, text: str) -> np.ndarray:
+            self.passages.append(text)
+            return answer_vector
+
+    embeddings = AnswerEmbeddings()
+    search = SearchService(embeddings, chats, solutions)
+    match = await search.find_best(-1001, "Где включить двухфакторную аутентификацию?")
+    assert match is not None and match.solution.id == solution_id
+    assert embeddings.passages == [answer_text]
+    assert (
+        await solutions.get_for_chat(-1001, solution_id)
+    ).answer_embedding == answer_vector.tobytes()
+    await search.find_best(-1001, "Как включить второй фактор?")
+    assert embeddings.passages == [answer_text]

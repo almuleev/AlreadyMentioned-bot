@@ -1,6 +1,5 @@
 """Administrator confirmation of a question–answer reply chain."""
 
-import logging
 from time import monotonic
 
 from aiogram import Bot, Router
@@ -9,6 +8,7 @@ from aiogram.filters import Command
 from aiogram.types import Message
 
 from already_mentioned.bot.permissions import is_chat_admin
+from already_mentioned.error_logging import log_operation_error
 from already_mentioned.repositories.chats import ChatRepository
 from already_mentioned.repositories.solutions import SolutionRepository
 from already_mentioned.services.embeddings import EmbeddingService, normalize_vector
@@ -35,22 +35,28 @@ async def autosave_admin_answer(
     pending = reply_cache.get(message.chat.id, message.message_id)
     if pending is None or not is_question_candidate(pending.question_text):
         return
-    answer_link = message.get_url()
-    if not pending.question_link or not answer_link:
-        return
-    if (
-        await solutions.get_by_pair(
-            message.chat.id, pending.question_message_id, message.message_id
-        )
-        is not None
-    ):
-        return
+    operation = "autosave_prepare"
     try:
-        embedding = normalize_vector(
+        answer_link = message.get_url()
+        if not pending.question_link or not answer_link:
+            return
+        if (
+            await solutions.get_by_pair(
+                message.chat.id, pending.question_message_id, message.message_id
+            )
+            is not None
+        ):
+            return
+        operation = "autosave_embedding"
+        question_embedding = normalize_vector(
             await embeddings.embed_passage(pending.question_text)
+        ).tobytes()
+        answer_embedding = normalize_vector(
+            await embeddings.embed_passage(message.text)
         ).tobytes()
         if reply_cache.get(message.chat.id, message.message_id) is None:
             return
+        operation = "autosave_solution"
         await chats.ensure_chat(message.chat.id, message.chat.title or "")
         if reply_cache.get(message.chat.id, message.message_id) is None:
             return
@@ -60,18 +66,15 @@ async def autosave_admin_answer(
             answer_message_id=message.message_id,
             question_text=pending.question_text,
             answer_text=message.text,
-            question_embedding=embedding,
+            question_embedding=question_embedding,
+            answer_embedding=answer_embedding,
             question_link=pending.question_link,
             answer_link=answer_link,
         )
         if reply_cache.get(message.chat.id, message.message_id) is None:
             await solutions.delete_by_answer(message.chat.id, message.message_id)
-    except Exception:
-        logging.exception(
-            "Could not automatically save answer %s in chat %s",
-            message.message_id,
-            message.chat.id,
-        )
+    except Exception as error:
+        log_operation_error(operation, message.chat.id, message.message_id, error)
 
 
 @router.message(Command("solve"))
@@ -115,34 +118,50 @@ async def solve(
         )
         return
 
-    await chats.ensure_chat(message.chat.id, message.chat.title or "")
-    existing = await solutions.get_by_pair(
-        message.chat.id, pending.question_message_id, answer.message_id
-    )
+    try:
+        await chats.ensure_chat(message.chat.id, message.chat.title or "")
+        existing = await solutions.get_by_pair(
+            message.chat.id, pending.question_message_id, answer.message_id
+        )
+    except Exception as error:
+        log_operation_error("save_prepare", message.chat.id, message.message_id, error)
+        await message.answer("Не удалось проверить решение. Попробуйте /solve позже.")
+        return
     if existing is not None:
         await message.answer("Эта пара «вопрос → ответ» уже сохранена.")
         return
     try:
-        embedding = normalize_vector(
+        question_embedding = normalize_vector(
             await embeddings.embed_passage(pending.question_text)
         ).tobytes()
-    except Exception:
-        logging.exception("Could not embed confirmed question")
+        answer_embedding = normalize_vector(
+            await embeddings.embed_passage(answer.text)
+        ).tobytes()
+    except Exception as error:
+        log_operation_error(
+            "save_embedding", message.chat.id, message.message_id, error
+        )
         await message.answer(
             "Не удалось подготовить локальную модель поиска. "
             "Решение не сохранено; попробуйте /solve позже."
         )
         return
-    solution_id = await solutions.add_solution(
-        chat_id=message.chat.id,
-        question_message_id=pending.question_message_id,
-        answer_message_id=answer.message_id,
-        question_text=pending.question_text,
-        answer_text=answer.text,
-        question_embedding=embedding,
-        question_link=pending.question_link,
-        answer_link=answer_link,
-    )
+    try:
+        solution_id = await solutions.add_solution(
+            chat_id=message.chat.id,
+            question_message_id=pending.question_message_id,
+            answer_message_id=answer.message_id,
+            question_text=pending.question_text,
+            answer_text=answer.text,
+            question_embedding=question_embedding,
+            answer_embedding=answer_embedding,
+            question_link=pending.question_link,
+            answer_link=answer_link,
+        )
+    except Exception as error:
+        log_operation_error("save_solution", message.chat.id, message.message_id, error)
+        await message.answer("Не удалось сохранить решение. Попробуйте /solve позже.")
+        return
     if solution_id is None:
         await message.answer("Эта пара «вопрос → ответ» уже сохранена.")
     else:
