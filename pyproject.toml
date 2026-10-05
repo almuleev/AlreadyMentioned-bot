@@ -25,6 +25,12 @@ dev = [
 training = [
     "pyarrow>=17,<26",
 ]
+rerank = [
+    "onnxruntime>=1.17,<2",
+    "tokenizers>=0.15,<1",
+    "huggingface-hub>=0.20,<2",
+    "psutil>=5.9,<8",
+]
 benchmark = [
     "pyarrow>=17,<26",
     "sentence-transformers==5.7.0",

@@ -1,0 +1,2824 @@
+{
+  "annotation_status": "provisional_not_owner_confirmed",
+  "bot_model_changed": false,
+  "evaluation": "same_chat_past_answers_earlier_60_percent_full_F1",
+  "inputs": [
+    [
+      {
+        "name": "reviewed_cases_full.csv",
+        "sha256": "bdf51089e5db2a5c9c662b1ae94fc6870087306925449ed9b59dab29e52fd8a6"
+      },
+      {
+        "name": "chat1_inferred_solution_bank.csv",
+        "sha256": "fb77fbc08b0ae4b5a2b6480bdf6cf4063e6f64b46077dbda6c60d6d95c93b291"
+      },
+      {
+        "name": "chat2_inferred_solution_bank.csv",
+        "sha256": "66ba206e0e7052af347289396300ea781196af1b1aa89353f935d44ce5163e02"
+      },
+      {
+        "name": "chat3_inferred_solution_bank.csv",
+        "sha256": "112eaa9dee0436ca9e7493c0d28c29cf6d3508f875085d86e235edc48c929c5a"
+      },
+      {
+        "name": "chat4_inferred_solution_bank.csv",
+        "sha256": "b1e83a0e200415d6865869b2bd009711b3f11288afe0bda3a5aa2466425774d0"
+      },
+      {
+        "name": "chat5_inferred_solution_bank.csv",
+        "sha256": "816737d0ad06f29a5284774b29ddcff38a02a60d1ab1f0eb24aad0849d8d4754"
+      }
+    ],
+    [
+      {
+        "name": "reviewed_cases_full.csv",
+        "sha256": "561afbb0b59e079fba40db83a8cdaf7cd3f3b94ff563a43422eea35d3509eb4d"
+      },
+      {
+        "name": "chat1_inferred_solution_bank.csv",
+        "sha256": "fb77fbc08b0ae4b5a2b6480bdf6cf4063e6f64b46077dbda6c60d6d95c93b291"
+      },
+      {
+        "name": "chat2_inferred_solution_bank.csv",
+        "sha256": "5920281c6cc1ac21ac72f37bda5fc085e70f64deaa46dcb5039b0e768bae7437"
+      },
+      {
+        "name": "chat3_inferred_solution_bank.csv",
+        "sha256": "3100720d10ea0574b94bd7f475a2c681a3395795f3bfdaff6ad6c3de9021aab2"
+      },
+      {
+        "name": "chat4_inferred_solution_bank.csv",
+        "sha256": "b1e83a0e200415d6865869b2bd009711b3f11288afe0bda3a5aa2466425774d0"
+      },
+      {
+        "name": "chat5_inferred_solution_bank.csv",
+        "sha256": "816737d0ad06f29a5284774b29ddcff38a02a60d1ab1f0eb24aad0849d8d4754"
+      }
+    ]
+  ],
+  "packages_main": {
+    "numpy": "2.5.3",
+    "fastembed": "0.8.1",
+    "onnxruntime": "1.30.0",
+    "torch": "2.14.0",
+    "sentence-transformers": "5.7.0",
+    "transformers": "4.45.2",
+    "tokenizers": "0.20.3",
+    "psutil": "7.2.2"
+  },
+  "qwen_override_packages": {
+    "transformers": "4.57.6",
+    "tokenizers": "0.22.2"
+  },
+  "format_version": 1,
+  "experiment_dates": [
+    "2026-10-03",
+    "2026-10-04"
+  ],
+  "source_summary_sha256": "4821a2d4a4864ee3ae7d348a4b66bdfd5f45e846fcc4192003abfb8ed3bdc7c7",
+  "models": [
+    {
+      "name": "current",
+      "contract": {
+        "model": "intfloat/multilingual-e5-small",
+        "normalization": "L2",
+        "dtype": "float32",
+        "device": "cpu",
+        "threads": 2,
+        "query_rule": "query: ",
+        "passage_rule": "passage: ",
+        "backend": "fastembed",
+        "artifact": "models\\models--intfloat--multilingual-e5-small\\snapshots\\614241f622f53c4eeff9890bdc4f31cfecc418b3",
+        "artifact_source": "intfloat/multilingual-e5-small",
+        "dimension": 384
+      },
+      "report_sha256": "01065ffc46f4f868b59f7ce88673676dcc6424ca926f55181400dc5523c2a1b1",
+      "timing": {
+        "load_seconds": 2.0803547000032268,
+        "unique_queries": 985,
+        "unique_passages": 271,
+        "single_query_mean_ms": 7.570734111619357,
+        "single_query_p95_ms": 14.399579998280386,
+        "passage_batch_mean_ms": 11.402232103311583,
+        "ranking": [
+          {
+            "solutions": 15,
+            "mean_ms": 0.4493600019486621,
+            "p95_ms": 0.5138650027220137
+          },
+          {
+            "solutions": 50,
+            "mean_ms": 1.3451300008455291,
+            "p95_ms": 1.5958200001477962
+          },
+          {
+            "solutions": 100,
+            "mean_ms": 2.446579999377718,
+            "p95_ms": 2.588949998971657
+          },
+          {
+            "solutions": 200,
+            "mean_ms": 4.893719999381574,
+            "p95_ms": 5.143319998023799
+          }
+        ],
+        "excludes_sqlite_telegram": true
+      },
+      "process_memory": {
+        "rss_mib": 791.50390625,
+        "peak_rss_mib": 899.54296875,
+        "includes_python_libraries_vectors": true
+      },
+      "scenarios": [
+        {
+          "name": "bank_review_v2",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 127,
+            "positives": 32,
+            "excluded": 0
+          },
+          "threshold": 0.8881609764479425,
+          "leader_correct_on_passed_positives": 18,
+          "validation": {
+            "correct": 9,
+            "wrong": 140,
+            "missed": 11,
+            "positives": 20,
+            "total": 1928,
+            "precision": 0.06040268456375839,
+            "recall": 0.45,
+            "f1": 0.10650887573964497,
+            "filter_missed": 1,
+            "wrong_leader": 6,
+            "below_threshold": 4
+          },
+          "test": {
+            "correct": 3,
+            "wrong": 63,
+            "missed": 9,
+            "positives": 12,
+            "total": 1288,
+            "precision": 0.045454545454545456,
+            "recall": 0.25,
+            "f1": 0.07692307692307693,
+            "filter_missed": 4,
+            "wrong_leader": 3,
+            "below_threshold": 2
+          },
+          "all": {
+            "correct": 12,
+            "wrong": 203,
+            "missed": 20,
+            "positives": 32,
+            "total": 3216,
+            "precision": 0.05581395348837209,
+            "recall": 0.375,
+            "f1": 0.09716599190283401,
+            "filter_missed": 5,
+            "wrong_leader": 9,
+            "below_threshold": 6
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 3,
+              "wrong": 122,
+              "missed": 9,
+              "positives": 12,
+              "total": 1288,
+              "precision": 0.024,
+              "recall": 0.25,
+              "f1": 0.043795620437956206,
+              "filter_missed": 4,
+              "wrong_leader": 3,
+              "below_threshold": 2
+            },
+            "all": {
+              "correct": 14,
+              "wrong": 348,
+              "missed": 18,
+              "positives": 32,
+              "total": 3216,
+              "precision": 0.03867403314917127,
+              "recall": 0.4375,
+              "f1": 0.07106598984771574,
+              "filter_missed": 5,
+              "wrong_leader": 9,
+              "below_threshold": 4
+            }
+          }
+        },
+        {
+          "name": "with_inferred",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 136,
+            "positives": 36,
+            "excluded": 0
+          },
+          "threshold": 0.9064055522624473,
+          "leader_correct_on_passed_positives": 20,
+          "validation": {
+            "correct": 4,
+            "wrong": 23,
+            "missed": 19,
+            "positives": 23,
+            "total": 1928,
+            "precision": 0.14814814814814814,
+            "recall": 0.17391304347826086,
+            "f1": 0.16,
+            "filter_missed": 2,
+            "wrong_leader": 6,
+            "below_threshold": 11
+          },
+          "test": {
+            "correct": 1,
+            "wrong": 11,
+            "missed": 12,
+            "positives": 13,
+            "total": 1288,
+            "precision": 0.08333333333333333,
+            "recall": 0.07692307692307693,
+            "f1": 0.08,
+            "filter_missed": 4,
+            "wrong_leader": 4,
+            "below_threshold": 4
+          },
+          "all": {
+            "correct": 5,
+            "wrong": 34,
+            "missed": 31,
+            "positives": 36,
+            "total": 3216,
+            "precision": 0.1282051282051282,
+            "recall": 0.1388888888888889,
+            "f1": 0.13333333333333333,
+            "filter_missed": 6,
+            "wrong_leader": 10,
+            "below_threshold": 15
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 3,
+              "wrong": 125,
+              "missed": 10,
+              "positives": 13,
+              "total": 1288,
+              "precision": 0.0234375,
+              "recall": 0.23076923076923078,
+              "f1": 0.0425531914893617,
+              "filter_missed": 4,
+              "wrong_leader": 4,
+              "below_threshold": 2
+            },
+            "all": {
+              "correct": 16,
+              "wrong": 357,
+              "missed": 20,
+              "positives": 36,
+              "total": 3216,
+              "precision": 0.04289544235924933,
+              "recall": 0.4444444444444444,
+              "f1": 0.07823960880195599,
+              "filter_missed": 6,
+              "wrong_leader": 10,
+              "below_threshold": 4
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "minilm",
+      "contract": {
+        "model": "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+        "normalization": "L2",
+        "dtype": "float32",
+        "device": "cpu",
+        "threads": 2,
+        "query_rule": "plain",
+        "passage_rule": "plain",
+        "backend": "fastembed",
+        "artifact": "models\\models--qdrant--paraphrase-multilingual-MiniLM-L12-v2-onnx-Q\\snapshots\\faf4aa4225822f3bc6376869cb1164e8e3feedd0",
+        "artifact_source": "qdrant/paraphrase-multilingual-MiniLM-L12-v2-onnx-Q",
+        "dimension": 384
+      },
+      "report_sha256": "41eea2c3a21011b1358c6c5a5e55e6c53093db22bb4060fdc8baf63533f6cdca",
+      "timing": {
+        "load_seconds": 1.7499345999967773,
+        "unique_queries": 985,
+        "unique_passages": 271,
+        "single_query_mean_ms": 7.962287614298725,
+        "single_query_p95_ms": 14.927420001185963,
+        "passage_batch_mean_ms": 12.666947601488285,
+        "ranking": [
+          {
+            "solutions": 15,
+            "mean_ms": 0.43932999979006127,
+            "p95_ms": 0.5073699998320079
+          },
+          {
+            "solutions": 50,
+            "mean_ms": 1.2003500014543533,
+            "p95_ms": 1.2177099994005403
+          },
+          {
+            "solutions": 100,
+            "mean_ms": 2.389930000936147,
+            "p95_ms": 2.411299999948824
+          },
+          {
+            "solutions": 200,
+            "mean_ms": 4.772819998470368,
+            "p95_ms": 4.81088999658823
+          }
+        ],
+        "excludes_sqlite_telegram": true
+      },
+      "process_memory": {
+        "rss_mib": 608.83203125,
+        "peak_rss_mib": 610.11328125,
+        "includes_python_libraries_vectors": true
+      },
+      "scenarios": [
+        {
+          "name": "bank_review_v2",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 127,
+            "positives": 32,
+            "excluded": 0
+          },
+          "threshold": 0.7133008862280705,
+          "leader_correct_on_passed_positives": 12,
+          "validation": {
+            "correct": 3,
+            "wrong": 50,
+            "missed": 17,
+            "positives": 20,
+            "total": 1928,
+            "precision": 0.05660377358490566,
+            "recall": 0.15,
+            "f1": 0.0821917808219178,
+            "filter_missed": 1,
+            "wrong_leader": 12,
+            "below_threshold": 4
+          },
+          "test": {
+            "correct": 2,
+            "wrong": 29,
+            "missed": 10,
+            "positives": 12,
+            "total": 1288,
+            "precision": 0.06451612903225806,
+            "recall": 0.16666666666666666,
+            "f1": 0.09302325581395349,
+            "filter_missed": 4,
+            "wrong_leader": 3,
+            "below_threshold": 3
+          },
+          "all": {
+            "correct": 5,
+            "wrong": 79,
+            "missed": 27,
+            "positives": 32,
+            "total": 3216,
+            "precision": 0.05952380952380952,
+            "recall": 0.15625,
+            "f1": 0.08620689655172414,
+            "filter_missed": 5,
+            "wrong_leader": 15,
+            "below_threshold": 7
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 1,
+              "wrong": 0,
+              "missed": 11,
+              "positives": 12,
+              "total": 1288,
+              "precision": 1.0,
+              "recall": 0.08333333333333333,
+              "f1": 0.15384615384615385,
+              "filter_missed": 4,
+              "wrong_leader": 3,
+              "below_threshold": 4
+            },
+            "all": {
+              "correct": 1,
+              "wrong": 1,
+              "missed": 31,
+              "positives": 32,
+              "total": 3216,
+              "precision": 0.5,
+              "recall": 0.03125,
+              "f1": 0.058823529411764705,
+              "filter_missed": 5,
+              "wrong_leader": 15,
+              "below_threshold": 11
+            }
+          }
+        },
+        {
+          "name": "with_inferred",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 136,
+            "positives": 36,
+            "excluded": 0
+          },
+          "threshold": 0.7133008862280705,
+          "leader_correct_on_passed_positives": 14,
+          "validation": {
+            "correct": 5,
+            "wrong": 56,
+            "missed": 18,
+            "positives": 23,
+            "total": 1928,
+            "precision": 0.08196721311475409,
+            "recall": 0.21739130434782608,
+            "f1": 0.11904761904761904,
+            "filter_missed": 2,
+            "wrong_leader": 12,
+            "below_threshold": 4
+          },
+          "test": {
+            "correct": 2,
+            "wrong": 30,
+            "missed": 11,
+            "positives": 13,
+            "total": 1288,
+            "precision": 0.0625,
+            "recall": 0.15384615384615385,
+            "f1": 0.08888888888888889,
+            "filter_missed": 4,
+            "wrong_leader": 4,
+            "below_threshold": 3
+          },
+          "all": {
+            "correct": 7,
+            "wrong": 86,
+            "missed": 29,
+            "positives": 36,
+            "total": 3216,
+            "precision": 0.07526881720430108,
+            "recall": 0.19444444444444445,
+            "f1": 0.10852713178294573,
+            "filter_missed": 6,
+            "wrong_leader": 16,
+            "below_threshold": 7
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 1,
+              "wrong": 0,
+              "missed": 12,
+              "positives": 13,
+              "total": 1288,
+              "precision": 1.0,
+              "recall": 0.07692307692307693,
+              "f1": 0.14285714285714285,
+              "filter_missed": 4,
+              "wrong_leader": 4,
+              "below_threshold": 4
+            },
+            "all": {
+              "correct": 2,
+              "wrong": 1,
+              "missed": 34,
+              "positives": 36,
+              "total": 3216,
+              "precision": 0.6666666666666666,
+              "recall": 0.05555555555555555,
+              "f1": 0.10256410256410256,
+              "filter_missed": 6,
+              "wrong_leader": 16,
+              "below_threshold": 12
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "potion",
+      "contract": {
+        "model": "minishlab/potion-multilingual-128M",
+        "normalization": "L2",
+        "dtype": "float32",
+        "device": "cpu",
+        "threads": 2,
+        "query_rule": "plain",
+        "passage_rule": "plain",
+        "backend": "fastembed",
+        "artifact": "models\\models--minishlab--potion-multilingual-128m-onnx\\snapshots\\3766c5fca8a199c3d6801461f289f4459719ba31",
+        "artifact_source": "minishlab/potion-multilingual-128m-onnx",
+        "dimension": 256
+      },
+      "report_sha256": "5f6a8f400ea6b3254aa3523665264c623e10d506c03165129ef1fe30e569b82e",
+      "timing": {
+        "load_seconds": 2.5229518999985885,
+        "unique_queries": 985,
+        "unique_passages": 271,
+        "single_query_mean_ms": 0.25464751274439595,
+        "single_query_p95_ms": 0.40657999634277076,
+        "passage_batch_mean_ms": 0.10467121770435332,
+        "ranking": [
+          {
+            "solutions": 15,
+            "mean_ms": 0.45763000161969103,
+            "p95_ms": 0.5386500011809403
+          },
+          {
+            "solutions": 50,
+            "mean_ms": 1.2876199987658765,
+            "p95_ms": 1.3068900003418094
+          },
+          {
+            "solutions": 100,
+            "mean_ms": 2.5778099996387027,
+            "p95_ms": 2.601359997424879
+          },
+          {
+            "solutions": 200,
+            "mean_ms": 5.170920000091428,
+            "p95_ms": 5.370420001418097
+          }
+        ],
+        "excludes_sqlite_telegram": true
+      },
+      "process_memory": {
+        "rss_mib": 1000.6953125,
+        "peak_rss_mib": 1057.26953125,
+        "includes_python_libraries_vectors": true
+      },
+      "scenarios": [
+        {
+          "name": "bank_review_v2",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 127,
+            "positives": 32,
+            "excluded": 0
+          },
+          "threshold": 0.6893897629779815,
+          "leader_correct_on_passed_positives": 7,
+          "validation": {
+            "correct": 2,
+            "wrong": 18,
+            "missed": 18,
+            "positives": 20,
+            "total": 1928,
+            "precision": 0.1,
+            "recall": 0.1,
+            "f1": 0.1,
+            "filter_missed": 1,
+            "wrong_leader": 14,
+            "below_threshold": 3
+          },
+          "test": {
+            "correct": 0,
+            "wrong": 7,
+            "missed": 12,
+            "positives": 12,
+            "total": 1288,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "filter_missed": 4,
+            "wrong_leader": 6,
+            "below_threshold": 2
+          },
+          "all": {
+            "correct": 2,
+            "wrong": 25,
+            "missed": 30,
+            "positives": 32,
+            "total": 3216,
+            "precision": 0.07407407407407407,
+            "recall": 0.0625,
+            "f1": 0.06779661016949153,
+            "filter_missed": 5,
+            "wrong_leader": 20,
+            "below_threshold": 5
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 12,
+              "positives": 12,
+              "total": 1288,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 4,
+              "wrong_leader": 6,
+              "below_threshold": 2
+            },
+            "all": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 32,
+              "positives": 32,
+              "total": 3216,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 5,
+              "wrong_leader": 20,
+              "below_threshold": 7
+            }
+          }
+        },
+        {
+          "name": "with_inferred",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 136,
+            "positives": 36,
+            "excluded": 0
+          },
+          "threshold": 0.6893897629779815,
+          "leader_correct_on_passed_positives": 9,
+          "validation": {
+            "correct": 2,
+            "wrong": 20,
+            "missed": 21,
+            "positives": 23,
+            "total": 1928,
+            "precision": 0.09090909090909091,
+            "recall": 0.08695652173913043,
+            "f1": 0.08888888888888889,
+            "filter_missed": 2,
+            "wrong_leader": 15,
+            "below_threshold": 4
+          },
+          "test": {
+            "correct": 0,
+            "wrong": 9,
+            "missed": 13,
+            "positives": 13,
+            "total": 1288,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "filter_missed": 4,
+            "wrong_leader": 6,
+            "below_threshold": 3
+          },
+          "all": {
+            "correct": 2,
+            "wrong": 29,
+            "missed": 34,
+            "positives": 36,
+            "total": 3216,
+            "precision": 0.06451612903225806,
+            "recall": 0.05555555555555555,
+            "f1": 0.05970149253731343,
+            "filter_missed": 6,
+            "wrong_leader": 21,
+            "below_threshold": 7
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 13,
+              "positives": 13,
+              "total": 1288,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 4,
+              "wrong_leader": 6,
+              "below_threshold": 3
+            },
+            "all": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 36,
+              "positives": 36,
+              "total": 3216,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 6,
+              "wrong_leader": 21,
+              "below_threshold": 9
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "rubert-tiny2",
+      "contract": {
+        "model": "cointegrated/rubert-tiny2",
+        "normalization": "L2",
+        "dtype": "float32",
+        "device": "cpu",
+        "threads": 2,
+        "query_rule": "plain",
+        "passage_rule": "plain",
+        "backend": "sentence_transformers",
+        "revision": "e8ed3b0c8bbf4fb6984c3de043bf7d2f4e5969ae",
+        "max_sequence_length": 2048,
+        "dimension": 312
+      },
+      "report_sha256": "a703e308707ff57afd3ed27f986709303974a043ece1bf1391adf9ec4862c821",
+      "timing": {
+        "load_seconds": 9.841707300001872,
+        "unique_queries": 985,
+        "unique_passages": 271,
+        "single_query_mean_ms": 3.8118634518247148,
+        "single_query_p95_ms": 5.689680000068617,
+        "passage_batch_mean_ms": 1.289055350575316,
+        "ranking": [
+          {
+            "solutions": 15,
+            "mean_ms": 0.4643700005544815,
+            "p95_ms": 0.5400599977292585
+          },
+          {
+            "solutions": 50,
+            "mean_ms": 1.520580000942573,
+            "p95_ms": 1.6606150005827658
+          },
+          {
+            "solutions": 100,
+            "mean_ms": 3.0331100009789225,
+            "p95_ms": 3.130630002488033
+          },
+          {
+            "solutions": 200,
+            "mean_ms": 6.08247999989544,
+            "p95_ms": 6.19902999860642
+          }
+        ],
+        "excludes_sqlite_telegram": true
+      },
+      "process_memory": {
+        "rss_mib": 400.3671875,
+        "peak_rss_mib": 401.6484375,
+        "includes_python_libraries_vectors": true
+      },
+      "scenarios": [
+        {
+          "name": "bank_review_v2",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 127,
+            "positives": 32,
+            "excluded": 0
+          },
+          "threshold": 0.7679841725008216,
+          "leader_correct_on_passed_positives": 10,
+          "validation": {
+            "correct": 4,
+            "wrong": 80,
+            "missed": 16,
+            "positives": 20,
+            "total": 1928,
+            "precision": 0.047619047619047616,
+            "recall": 0.2,
+            "f1": 0.07692307692307693,
+            "filter_missed": 1,
+            "wrong_leader": 12,
+            "below_threshold": 3
+          },
+          "test": {
+            "correct": 2,
+            "wrong": 36,
+            "missed": 10,
+            "positives": 12,
+            "total": 1288,
+            "precision": 0.05263157894736842,
+            "recall": 0.16666666666666666,
+            "f1": 0.08,
+            "filter_missed": 4,
+            "wrong_leader": 5,
+            "below_threshold": 1
+          },
+          "all": {
+            "correct": 6,
+            "wrong": 116,
+            "missed": 26,
+            "positives": 32,
+            "total": 3216,
+            "precision": 0.04918032786885246,
+            "recall": 0.1875,
+            "f1": 0.07792207792207792,
+            "filter_missed": 5,
+            "wrong_leader": 17,
+            "below_threshold": 4
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 12,
+              "positives": 12,
+              "total": 1288,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 4,
+              "wrong_leader": 5,
+              "below_threshold": 3
+            },
+            "all": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 32,
+              "positives": 32,
+              "total": 3216,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 5,
+              "wrong_leader": 17,
+              "below_threshold": 10
+            }
+          }
+        },
+        {
+          "name": "with_inferred",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 136,
+            "positives": 36,
+            "excluded": 0
+          },
+          "threshold": 0.8335738484821417,
+          "leader_correct_on_passed_positives": 13,
+          "validation": {
+            "correct": 2,
+            "wrong": 4,
+            "missed": 21,
+            "positives": 23,
+            "total": 1928,
+            "precision": 0.3333333333333333,
+            "recall": 0.08695652173913043,
+            "f1": 0.13793103448275862,
+            "filter_missed": 2,
+            "wrong_leader": 12,
+            "below_threshold": 7
+          },
+          "test": {
+            "correct": 0,
+            "wrong": 6,
+            "missed": 13,
+            "positives": 13,
+            "total": 1288,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "filter_missed": 4,
+            "wrong_leader": 5,
+            "below_threshold": 4
+          },
+          "all": {
+            "correct": 2,
+            "wrong": 10,
+            "missed": 34,
+            "positives": 36,
+            "total": 3216,
+            "precision": 0.16666666666666666,
+            "recall": 0.05555555555555555,
+            "f1": 0.08333333333333333,
+            "filter_missed": 6,
+            "wrong_leader": 17,
+            "below_threshold": 11
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 13,
+              "positives": 13,
+              "total": 1288,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 4,
+              "wrong_leader": 5,
+              "below_threshold": 4
+            },
+            "all": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 36,
+              "positives": 36,
+              "total": 3216,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 6,
+              "wrong_leader": 17,
+              "below_threshold": 13
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "e5-base",
+      "contract": {
+        "model": "intfloat/multilingual-e5-base",
+        "normalization": "L2",
+        "dtype": "float32",
+        "device": "cpu",
+        "threads": 2,
+        "query_rule": "query: ",
+        "passage_rule": "passage: ",
+        "backend": "sentence_transformers",
+        "revision": "d128750597153bb5987e10b1c3493a34e5a4502a",
+        "max_sequence_length": 512,
+        "dimension": 768
+      },
+      "report_sha256": "a36113b91d898c1451c3e64356330312edbd117e54d59adf1371877e87075aab",
+      "timing": {
+        "load_seconds": 6.254313099998399,
+        "unique_queries": 985,
+        "unique_passages": 271,
+        "single_query_mean_ms": 52.14249685285985,
+        "single_query_p95_ms": 76.18873999890639,
+        "passage_batch_mean_ms": 29.709811439128536,
+        "ranking": [
+          {
+            "solutions": 15,
+            "mean_ms": 0.5370499988202937,
+            "p95_ms": 0.6344549958157585
+          },
+          {
+            "solutions": 50,
+            "mean_ms": 1.3214999999036081,
+            "p95_ms": 1.4837000002444252
+          },
+          {
+            "solutions": 100,
+            "mean_ms": 2.613159998873016,
+            "p95_ms": 2.7900899964151904
+          },
+          {
+            "solutions": 200,
+            "mean_ms": 5.231160001130775,
+            "p95_ms": 5.424130001483718
+          }
+        ],
+        "excludes_sqlite_telegram": true
+      },
+      "process_memory": {
+        "rss_mib": 971.12109375,
+        "peak_rss_mib": 1012.63671875,
+        "includes_python_libraries_vectors": true
+      },
+      "scenarios": [
+        {
+          "name": "bank_review_v2",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 127,
+            "positives": 32,
+            "excluded": 0
+          },
+          "threshold": 0.8828476336673634,
+          "leader_correct_on_passed_positives": 15,
+          "validation": {
+            "correct": 2,
+            "wrong": 12,
+            "missed": 18,
+            "positives": 20,
+            "total": 1928,
+            "precision": 0.14285714285714285,
+            "recall": 0.1,
+            "f1": 0.11764705882352941,
+            "filter_missed": 1,
+            "wrong_leader": 7,
+            "below_threshold": 10
+          },
+          "test": {
+            "correct": 1,
+            "wrong": 4,
+            "missed": 11,
+            "positives": 12,
+            "total": 1288,
+            "precision": 0.2,
+            "recall": 0.08333333333333333,
+            "f1": 0.11764705882352941,
+            "filter_missed": 4,
+            "wrong_leader": 5,
+            "below_threshold": 2
+          },
+          "all": {
+            "correct": 3,
+            "wrong": 16,
+            "missed": 29,
+            "positives": 32,
+            "total": 3216,
+            "precision": 0.15789473684210525,
+            "recall": 0.09375,
+            "f1": 0.11764705882352941,
+            "filter_missed": 5,
+            "wrong_leader": 12,
+            "below_threshold": 12
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 2,
+              "wrong": 6,
+              "missed": 10,
+              "positives": 12,
+              "total": 1288,
+              "precision": 0.25,
+              "recall": 0.16666666666666666,
+              "f1": 0.2,
+              "filter_missed": 4,
+              "wrong_leader": 5,
+              "below_threshold": 1
+            },
+            "all": {
+              "correct": 4,
+              "wrong": 22,
+              "missed": 28,
+              "positives": 32,
+              "total": 3216,
+              "precision": 0.15384615384615385,
+              "recall": 0.125,
+              "f1": 0.13793103448275862,
+              "filter_missed": 5,
+              "wrong_leader": 12,
+              "below_threshold": 11
+            }
+          }
+        },
+        {
+          "name": "with_inferred",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 136,
+            "positives": 36,
+            "excluded": 0
+          },
+          "threshold": 0.8818356003016738,
+          "leader_correct_on_passed_positives": 18,
+          "validation": {
+            "correct": 4,
+            "wrong": 16,
+            "missed": 19,
+            "positives": 23,
+            "total": 1928,
+            "precision": 0.2,
+            "recall": 0.17391304347826086,
+            "f1": 0.18604651162790697,
+            "filter_missed": 2,
+            "wrong_leader": 7,
+            "below_threshold": 10
+          },
+          "test": {
+            "correct": 2,
+            "wrong": 5,
+            "missed": 11,
+            "positives": 13,
+            "total": 1288,
+            "precision": 0.2857142857142857,
+            "recall": 0.15384615384615385,
+            "f1": 0.2,
+            "filter_missed": 4,
+            "wrong_leader": 5,
+            "below_threshold": 2
+          },
+          "all": {
+            "correct": 6,
+            "wrong": 21,
+            "missed": 30,
+            "positives": 36,
+            "total": 3216,
+            "precision": 0.2222222222222222,
+            "recall": 0.16666666666666666,
+            "f1": 0.19047619047619047,
+            "filter_missed": 6,
+            "wrong_leader": 12,
+            "below_threshold": 12
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 2,
+              "wrong": 6,
+              "missed": 11,
+              "positives": 13,
+              "total": 1288,
+              "precision": 0.25,
+              "recall": 0.15384615384615385,
+              "f1": 0.19047619047619047,
+              "filter_missed": 4,
+              "wrong_leader": 5,
+              "below_threshold": 2
+            },
+            "all": {
+              "correct": 6,
+              "wrong": 25,
+              "missed": 30,
+              "positives": 36,
+              "total": 3216,
+              "precision": 0.1935483870967742,
+              "recall": 0.16666666666666666,
+              "f1": 0.1791044776119403,
+              "filter_missed": 6,
+              "wrong_leader": 12,
+              "below_threshold": 12
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "mpnet",
+      "contract": {
+        "model": "sentence-transformers/paraphrase-multilingual-mpnet-base-v2",
+        "normalization": "L2",
+        "dtype": "float32",
+        "device": "cpu",
+        "threads": 2,
+        "query_rule": "plain",
+        "passage_rule": "plain",
+        "backend": "sentence_transformers",
+        "revision": "4328cf26390c98c5e3c738b4460a05b95f4911f5",
+        "max_sequence_length": 128,
+        "dimension": 768
+      },
+      "report_sha256": "04fe33321f7a8be744f43106ef504151969e0e2ef1ec308701f06d17546d5286",
+      "timing": {
+        "load_seconds": 6.156796499999473,
+        "unique_queries": 985,
+        "unique_passages": 271,
+        "single_query_mean_ms": 49.04189350262673,
+        "single_query_p95_ms": 73.08673999796154,
+        "passage_batch_mean_ms": 25.388334317352346,
+        "ranking": [
+          {
+            "solutions": 15,
+            "mean_ms": 0.494710000930354,
+            "p95_ms": 0.562400001581409
+          },
+          {
+            "solutions": 50,
+            "mean_ms": 1.3922500009357464,
+            "p95_ms": 1.6787900000053921
+          },
+          {
+            "solutions": 100,
+            "mean_ms": 2.587560000392841,
+            "p95_ms": 2.6736750005511567
+          },
+          {
+            "solutions": 200,
+            "mean_ms": 5.1858800019545015,
+            "p95_ms": 5.2711200009071035
+          }
+        ],
+        "excludes_sqlite_telegram": true
+      },
+      "process_memory": {
+        "rss_mib": 940.3359375,
+        "peak_rss_mib": 1015.48828125,
+        "includes_python_libraries_vectors": true
+      },
+      "scenarios": [
+        {
+          "name": "bank_review_v2",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 127,
+            "positives": 32,
+            "excluded": 0
+          },
+          "threshold": 0.8245843385869553,
+          "leader_correct_on_passed_positives": 17,
+          "validation": {
+            "correct": 2,
+            "wrong": 11,
+            "missed": 18,
+            "positives": 20,
+            "total": 1928,
+            "precision": 0.15384615384615385,
+            "recall": 0.1,
+            "f1": 0.12121212121212122,
+            "filter_missed": 1,
+            "wrong_leader": 7,
+            "below_threshold": 10
+          },
+          "test": {
+            "correct": 0,
+            "wrong": 5,
+            "missed": 12,
+            "positives": 12,
+            "total": 1288,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "filter_missed": 4,
+            "wrong_leader": 3,
+            "below_threshold": 5
+          },
+          "all": {
+            "correct": 2,
+            "wrong": 16,
+            "missed": 30,
+            "positives": 32,
+            "total": 3216,
+            "precision": 0.1111111111111111,
+            "recall": 0.0625,
+            "f1": 0.08,
+            "filter_missed": 5,
+            "wrong_leader": 10,
+            "below_threshold": 15
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 12,
+              "positives": 12,
+              "total": 1288,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 4,
+              "wrong_leader": 3,
+              "below_threshold": 5
+            },
+            "all": {
+              "correct": 0,
+              "wrong": 2,
+              "missed": 32,
+              "positives": 32,
+              "total": 3216,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 5,
+              "wrong_leader": 10,
+              "below_threshold": 17
+            }
+          }
+        },
+        {
+          "name": "with_inferred",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 136,
+            "positives": 36,
+            "excluded": 0
+          },
+          "threshold": 0.8245843385869553,
+          "leader_correct_on_passed_positives": 20,
+          "validation": {
+            "correct": 4,
+            "wrong": 12,
+            "missed": 19,
+            "positives": 23,
+            "total": 1928,
+            "precision": 0.25,
+            "recall": 0.17391304347826086,
+            "f1": 0.20512820512820512,
+            "filter_missed": 2,
+            "wrong_leader": 7,
+            "below_threshold": 10
+          },
+          "test": {
+            "correct": 0,
+            "wrong": 6,
+            "missed": 13,
+            "positives": 13,
+            "total": 1288,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "filter_missed": 4,
+            "wrong_leader": 3,
+            "below_threshold": 6
+          },
+          "all": {
+            "correct": 4,
+            "wrong": 18,
+            "missed": 32,
+            "positives": 36,
+            "total": 3216,
+            "precision": 0.18181818181818182,
+            "recall": 0.1111111111111111,
+            "f1": 0.13793103448275862,
+            "filter_missed": 6,
+            "wrong_leader": 10,
+            "below_threshold": 16
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 13,
+              "positives": 13,
+              "total": 1288,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 4,
+              "wrong_leader": 3,
+              "below_threshold": 6
+            },
+            "all": {
+              "correct": 0,
+              "wrong": 3,
+              "missed": 36,
+              "positives": 36,
+              "total": 3216,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 6,
+              "wrong_leader": 10,
+              "below_threshold": 20
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "gte-base",
+      "contract": {
+        "model": "Alibaba-NLP/gte-multilingual-base",
+        "normalization": "L2",
+        "dtype": "float32",
+        "device": "cpu",
+        "threads": 2,
+        "query_rule": "plain",
+        "passage_rule": "plain",
+        "backend": "sentence_transformers",
+        "revision": "9bbca17d9273fd0d03d5725c7a4b0f6b45142062",
+        "max_sequence_length": 8192,
+        "dimension": 768
+      },
+      "report_sha256": "4d0a3fac14ba15c3d58e86fcf9df2ff17c2088c48465fe8ed491e73ec35f48cb",
+      "timing": {
+        "load_seconds": 7.892263000001549,
+        "unique_queries": 985,
+        "unique_passages": 271,
+        "single_query_mean_ms": 71.3821462944205,
+        "single_query_p95_ms": 112.45446000248194,
+        "passage_batch_mean_ms": 39.051106273052945,
+        "ranking": [
+          {
+            "solutions": 15,
+            "mean_ms": 0.5052500011515804,
+            "p95_ms": 0.5711850055376998
+          },
+          {
+            "solutions": 50,
+            "mean_ms": 1.6271500004222617,
+            "p95_ms": 1.6511599947989453
+          },
+          {
+            "solutions": 100,
+            "mean_ms": 3.2562699998379685,
+            "p95_ms": 3.276070002175402
+          },
+          {
+            "solutions": 200,
+            "mean_ms": 5.946110001241323,
+            "p95_ms": 6.754869999713264
+          }
+        ],
+        "excludes_sqlite_telegram": true
+      },
+      "process_memory": {
+        "rss_mib": 1795.87890625,
+        "peak_rss_mib": 2087.58984375,
+        "includes_python_libraries_vectors": true
+      },
+      "scenarios": [
+        {
+          "name": "bank_review_v2",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 127,
+            "positives": 32,
+            "excluded": 0
+          },
+          "threshold": 0.7734876454450093,
+          "leader_correct_on_passed_positives": 18,
+          "validation": {
+            "correct": 6,
+            "wrong": 50,
+            "missed": 14,
+            "positives": 20,
+            "total": 1928,
+            "precision": 0.10714285714285714,
+            "recall": 0.3,
+            "f1": 0.15789473684210525,
+            "filter_missed": 1,
+            "wrong_leader": 4,
+            "below_threshold": 9
+          },
+          "test": {
+            "correct": 2,
+            "wrong": 12,
+            "missed": 10,
+            "positives": 12,
+            "total": 1288,
+            "precision": 0.14285714285714285,
+            "recall": 0.16666666666666666,
+            "f1": 0.15384615384615385,
+            "filter_missed": 4,
+            "wrong_leader": 5,
+            "below_threshold": 1
+          },
+          "all": {
+            "correct": 8,
+            "wrong": 62,
+            "missed": 24,
+            "positives": 32,
+            "total": 3216,
+            "precision": 0.11428571428571428,
+            "recall": 0.25,
+            "f1": 0.1568627450980392,
+            "filter_missed": 5,
+            "wrong_leader": 9,
+            "below_threshold": 10
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 1,
+              "wrong": 0,
+              "missed": 11,
+              "positives": 12,
+              "total": 1288,
+              "precision": 1.0,
+              "recall": 0.08333333333333333,
+              "f1": 0.15384615384615385,
+              "filter_missed": 4,
+              "wrong_leader": 5,
+              "below_threshold": 2
+            },
+            "all": {
+              "correct": 1,
+              "wrong": 1,
+              "missed": 31,
+              "positives": 32,
+              "total": 3216,
+              "precision": 0.5,
+              "recall": 0.03125,
+              "f1": 0.058823529411764705,
+              "filter_missed": 5,
+              "wrong_leader": 9,
+              "below_threshold": 17
+            }
+          }
+        },
+        {
+          "name": "with_inferred",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 136,
+            "positives": 36,
+            "excluded": 0
+          },
+          "threshold": 0.8228908032011388,
+          "leader_correct_on_passed_positives": 21,
+          "validation": {
+            "correct": 4,
+            "wrong": 11,
+            "missed": 19,
+            "positives": 23,
+            "total": 1928,
+            "precision": 0.26666666666666666,
+            "recall": 0.17391304347826086,
+            "f1": 0.21052631578947367,
+            "filter_missed": 2,
+            "wrong_leader": 4,
+            "below_threshold": 13
+          },
+          "test": {
+            "correct": 1,
+            "wrong": 7,
+            "missed": 12,
+            "positives": 13,
+            "total": 1288,
+            "precision": 0.125,
+            "recall": 0.07692307692307693,
+            "f1": 0.09523809523809523,
+            "filter_missed": 4,
+            "wrong_leader": 5,
+            "below_threshold": 3
+          },
+          "all": {
+            "correct": 5,
+            "wrong": 18,
+            "missed": 31,
+            "positives": 36,
+            "total": 3216,
+            "precision": 0.21739130434782608,
+            "recall": 0.1388888888888889,
+            "f1": 0.1694915254237288,
+            "filter_missed": 6,
+            "wrong_leader": 9,
+            "below_threshold": 16
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 1,
+              "wrong": 0,
+              "missed": 12,
+              "positives": 13,
+              "total": 1288,
+              "precision": 1.0,
+              "recall": 0.07692307692307693,
+              "f1": 0.14285714285714285,
+              "filter_missed": 4,
+              "wrong_leader": 5,
+              "below_threshold": 3
+            },
+            "all": {
+              "correct": 1,
+              "wrong": 2,
+              "missed": 35,
+              "positives": 36,
+              "total": 3216,
+              "precision": 0.3333333333333333,
+              "recall": 0.027777777777777776,
+              "f1": 0.05128205128205128,
+              "filter_missed": 6,
+              "wrong_leader": 9,
+              "below_threshold": 20
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "arctic-m",
+      "contract": {
+        "model": "Snowflake/snowflake-arctic-embed-m-v2.0",
+        "normalization": "L2",
+        "dtype": "float32",
+        "device": "cpu",
+        "threads": 2,
+        "query_rule": "query: ",
+        "passage_rule": "plain",
+        "backend": "sentence_transformers",
+        "revision": "95c2741480856aa9666782eb4afe11959938017f",
+        "max_sequence_length": 8192,
+        "dimension": 768
+      },
+      "report_sha256": "f6456c38e39e982b4f7f703a666706cfd9742af695adede475bde3a3f659426d",
+      "timing": {
+        "load_seconds": 6.176227800009656,
+        "unique_queries": 985,
+        "unique_passages": 271,
+        "single_query_mean_ms": 77.04636335052635,
+        "single_query_p95_ms": 116.29247999517244,
+        "passage_batch_mean_ms": 30.71961291516681,
+        "ranking": [
+          {
+            "solutions": 15,
+            "mean_ms": 0.6081900020944886,
+            "p95_ms": 1.0562400078924832
+          },
+          {
+            "solutions": 50,
+            "mean_ms": 1.3692399967112578,
+            "p95_ms": 1.5386449907964561
+          },
+          {
+            "solutions": 100,
+            "mean_ms": 2.642909999121912,
+            "p95_ms": 2.7377849983167835
+          },
+          {
+            "solutions": 200,
+            "mean_ms": 5.565839998598676,
+            "p95_ms": 6.661304998124249
+          }
+        ],
+        "excludes_sqlite_telegram": true
+      },
+      "process_memory": {
+        "rss_mib": 1072.4921875,
+        "peak_rss_mib": 1119.30078125,
+        "includes_python_libraries_vectors": true
+      },
+      "scenarios": [
+        {
+          "name": "bank_review_v2",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 127,
+            "positives": 32,
+            "excluded": 0
+          },
+          "threshold": 0.5115073688090089,
+          "leader_correct_on_passed_positives": 17,
+          "validation": {
+            "correct": 5,
+            "wrong": 54,
+            "missed": 15,
+            "positives": 20,
+            "total": 1928,
+            "precision": 0.0847457627118644,
+            "recall": 0.25,
+            "f1": 0.12658227848101267,
+            "filter_missed": 1,
+            "wrong_leader": 7,
+            "below_threshold": 7
+          },
+          "test": {
+            "correct": 3,
+            "wrong": 15,
+            "missed": 9,
+            "positives": 12,
+            "total": 1288,
+            "precision": 0.16666666666666666,
+            "recall": 0.25,
+            "f1": 0.2,
+            "filter_missed": 4,
+            "wrong_leader": 3,
+            "below_threshold": 2
+          },
+          "all": {
+            "correct": 8,
+            "wrong": 69,
+            "missed": 24,
+            "positives": 32,
+            "total": 3216,
+            "precision": 0.1038961038961039,
+            "recall": 0.25,
+            "f1": 0.14678899082568808,
+            "filter_missed": 5,
+            "wrong_leader": 10,
+            "below_threshold": 9
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 12,
+              "positives": 12,
+              "total": 1288,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 4,
+              "wrong_leader": 3,
+              "below_threshold": 5
+            },
+            "all": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 32,
+              "positives": 32,
+              "total": 3216,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 5,
+              "wrong_leader": 10,
+              "below_threshold": 17
+            }
+          }
+        },
+        {
+          "name": "with_inferred",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 136,
+            "positives": 36,
+            "excluded": 0
+          },
+          "threshold": 0.6291616888150623,
+          "leader_correct_on_passed_positives": 20,
+          "validation": {
+            "correct": 3,
+            "wrong": 7,
+            "missed": 20,
+            "positives": 23,
+            "total": 1928,
+            "precision": 0.3,
+            "recall": 0.13043478260869565,
+            "f1": 0.18181818181818182,
+            "filter_missed": 2,
+            "wrong_leader": 7,
+            "below_threshold": 11
+          },
+          "test": {
+            "correct": 0,
+            "wrong": 0,
+            "missed": 13,
+            "positives": 13,
+            "total": 1288,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0,
+            "filter_missed": 4,
+            "wrong_leader": 3,
+            "below_threshold": 6
+          },
+          "all": {
+            "correct": 3,
+            "wrong": 7,
+            "missed": 33,
+            "positives": 36,
+            "total": 3216,
+            "precision": 0.3,
+            "recall": 0.08333333333333333,
+            "f1": 0.13043478260869565,
+            "filter_missed": 6,
+            "wrong_leader": 10,
+            "below_threshold": 17
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 13,
+              "positives": 13,
+              "total": 1288,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 4,
+              "wrong_leader": 3,
+              "below_threshold": 6
+            },
+            "all": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 36,
+              "positives": 36,
+              "total": 3216,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 6,
+              "wrong_leader": 10,
+              "below_threshold": 20
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "e5-large",
+      "contract": {
+        "model": "intfloat/multilingual-e5-large",
+        "normalization": "L2",
+        "dtype": "float32",
+        "device": "cpu",
+        "threads": 2,
+        "query_rule": "query: ",
+        "passage_rule": "passage: ",
+        "backend": "sentence_transformers",
+        "revision": "3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3",
+        "max_sequence_length": 512,
+        "dimension": 1024
+      },
+      "report_sha256": "0583ba1dc93cc6061bf904b6bddaf136a3a51603b92b4fd243d9c535d3f0fda5",
+      "timing": {
+        "load_seconds": 6.600236199999927,
+        "unique_queries": 985,
+        "unique_passages": 271,
+        "single_query_mean_ms": 192.83244903561325,
+        "single_query_p95_ms": 288.5994400014167,
+        "passage_batch_mean_ms": 96.37288597786784,
+        "ranking": [
+          {
+            "solutions": 15,
+            "mean_ms": 0.5326200014678761,
+            "p95_ms": 0.6205850011610891
+          },
+          {
+            "solutions": 50,
+            "mean_ms": 1.410030000261031,
+            "p95_ms": 1.585505000548437
+          },
+          {
+            "solutions": 100,
+            "mean_ms": 2.7391300012823194,
+            "p95_ms": 2.777850005077198
+          },
+          {
+            "solutions": 200,
+            "mean_ms": 6.7502699996111915,
+            "p95_ms": 8.551745000295341
+          }
+        ],
+        "excludes_sqlite_telegram": true
+      },
+      "process_memory": {
+        "rss_mib": 1794.62109375,
+        "peak_rss_mib": 1925.5390625,
+        "includes_python_libraries_vectors": true
+      },
+      "scenarios": [
+        {
+          "name": "bank_review_v2",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 127,
+            "positives": 32,
+            "excluded": 0
+          },
+          "threshold": 0.8895207660068585,
+          "leader_correct_on_passed_positives": 16,
+          "validation": {
+            "correct": 2,
+            "wrong": 8,
+            "missed": 18,
+            "positives": 20,
+            "total": 1928,
+            "precision": 0.2,
+            "recall": 0.1,
+            "f1": 0.13333333333333333,
+            "filter_missed": 1,
+            "wrong_leader": 7,
+            "below_threshold": 10
+          },
+          "test": {
+            "correct": 1,
+            "wrong": 3,
+            "missed": 11,
+            "positives": 12,
+            "total": 1288,
+            "precision": 0.25,
+            "recall": 0.08333333333333333,
+            "f1": 0.125,
+            "filter_missed": 4,
+            "wrong_leader": 4,
+            "below_threshold": 3
+          },
+          "all": {
+            "correct": 3,
+            "wrong": 11,
+            "missed": 29,
+            "positives": 32,
+            "total": 3216,
+            "precision": 0.21428571428571427,
+            "recall": 0.09375,
+            "f1": 0.13043478260869565,
+            "filter_missed": 5,
+            "wrong_leader": 11,
+            "below_threshold": 13
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 1,
+              "wrong": 8,
+              "missed": 11,
+              "positives": 12,
+              "total": 1288,
+              "precision": 0.1111111111111111,
+              "recall": 0.08333333333333333,
+              "f1": 0.09523809523809523,
+              "filter_missed": 4,
+              "wrong_leader": 4,
+              "below_threshold": 3
+            },
+            "all": {
+              "correct": 3,
+              "wrong": 30,
+              "missed": 29,
+              "positives": 32,
+              "total": 3216,
+              "precision": 0.09090909090909091,
+              "recall": 0.09375,
+              "f1": 0.09230769230769231,
+              "filter_missed": 5,
+              "wrong_leader": 11,
+              "below_threshold": 13
+            }
+          }
+        },
+        {
+          "name": "with_inferred",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 136,
+            "positives": 36,
+            "excluded": 0
+          },
+          "threshold": 0.8895207660068585,
+          "leader_correct_on_passed_positives": 19,
+          "validation": {
+            "correct": 3,
+            "wrong": 9,
+            "missed": 20,
+            "positives": 23,
+            "total": 1928,
+            "precision": 0.25,
+            "recall": 0.13043478260869565,
+            "f1": 0.17142857142857143,
+            "filter_missed": 2,
+            "wrong_leader": 7,
+            "below_threshold": 11
+          },
+          "test": {
+            "correct": 1,
+            "wrong": 3,
+            "missed": 12,
+            "positives": 13,
+            "total": 1288,
+            "precision": 0.25,
+            "recall": 0.07692307692307693,
+            "f1": 0.11764705882352941,
+            "filter_missed": 4,
+            "wrong_leader": 4,
+            "below_threshold": 4
+          },
+          "all": {
+            "correct": 4,
+            "wrong": 12,
+            "missed": 32,
+            "positives": 36,
+            "total": 3216,
+            "precision": 0.25,
+            "recall": 0.1111111111111111,
+            "f1": 0.15384615384615385,
+            "filter_missed": 6,
+            "wrong_leader": 11,
+            "below_threshold": 15
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 1,
+              "wrong": 8,
+              "missed": 12,
+              "positives": 13,
+              "total": 1288,
+              "precision": 0.1111111111111111,
+              "recall": 0.07692307692307693,
+              "f1": 0.09090909090909091,
+              "filter_missed": 4,
+              "wrong_leader": 4,
+              "below_threshold": 4
+            },
+            "all": {
+              "correct": 4,
+              "wrong": 32,
+              "missed": 32,
+              "positives": 36,
+              "total": 3216,
+              "precision": 0.1111111111111111,
+              "recall": 0.1111111111111111,
+              "f1": 0.1111111111111111,
+              "filter_missed": 6,
+              "wrong_leader": 11,
+              "below_threshold": 15
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "bge-m3",
+      "contract": {
+        "model": "BAAI/bge-m3",
+        "normalization": "L2",
+        "dtype": "float32",
+        "device": "cpu",
+        "threads": 2,
+        "query_rule": "plain",
+        "passage_rule": "plain",
+        "backend": "sentence_transformers",
+        "revision": "5617a9f61b028005a4858fdac845db406aefb181",
+        "max_sequence_length": 8192,
+        "dimension": 1024
+      },
+      "report_sha256": "9df12f81429c358183ee084f4f197d69e744a6924b19095836b76596dd70ef1c",
+      "timing": {
+        "load_seconds": 11.552565799996955,
+        "unique_queries": 985,
+        "unique_passages": 271,
+        "single_query_mean_ms": 174.3863006091829,
+        "single_query_p95_ms": 261.71523999946646,
+        "passage_batch_mean_ms": 93.8854439114156,
+        "ranking": [
+          {
+            "solutions": 15,
+            "mean_ms": 1.247080002212897,
+            "p95_ms": 4.585035003401564
+          },
+          {
+            "solutions": 50,
+            "mean_ms": 1.4002199997776188,
+            "p95_ms": 1.6282999953546091
+          },
+          {
+            "solutions": 100,
+            "mean_ms": 2.7638400002615526,
+            "p95_ms": 2.840584993828088
+          },
+          {
+            "solutions": 200,
+            "mean_ms": 5.506249998870771,
+            "p95_ms": 5.587979998381343
+          }
+        ],
+        "excludes_sqlite_telegram": true
+      },
+      "process_memory": {
+        "rss_mib": 1805.640625,
+        "peak_rss_mib": 1932.0625,
+        "includes_python_libraries_vectors": true
+      },
+      "scenarios": [
+        {
+          "name": "bank_review_v2",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 127,
+            "positives": 32,
+            "excluded": 0
+          },
+          "threshold": 0.6757994662196574,
+          "leader_correct_on_passed_positives": 20,
+          "validation": {
+            "correct": 9,
+            "wrong": 112,
+            "missed": 11,
+            "positives": 20,
+            "total": 1928,
+            "precision": 0.0743801652892562,
+            "recall": 0.45,
+            "f1": 0.1276595744680851,
+            "filter_missed": 1,
+            "wrong_leader": 5,
+            "below_threshold": 5
+          },
+          "test": {
+            "correct": 4,
+            "wrong": 46,
+            "missed": 8,
+            "positives": 12,
+            "total": 1288,
+            "precision": 0.08,
+            "recall": 0.3333333333333333,
+            "f1": 0.12903225806451613,
+            "filter_missed": 4,
+            "wrong_leader": 2,
+            "below_threshold": 2
+          },
+          "all": {
+            "correct": 13,
+            "wrong": 158,
+            "missed": 19,
+            "positives": 32,
+            "total": 3216,
+            "precision": 0.07602339181286549,
+            "recall": 0.40625,
+            "f1": 0.12807881773399016,
+            "filter_missed": 5,
+            "wrong_leader": 7,
+            "below_threshold": 7
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 12,
+              "positives": 12,
+              "total": 1288,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 4,
+              "wrong_leader": 2,
+              "below_threshold": 6
+            },
+            "all": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 32,
+              "positives": 32,
+              "total": 3216,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 5,
+              "wrong_leader": 7,
+              "below_threshold": 20
+            }
+          }
+        },
+        {
+          "name": "with_inferred",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 136,
+            "positives": 36,
+            "excluded": 0
+          },
+          "threshold": 0.7566310026264783,
+          "leader_correct_on_passed_positives": 23,
+          "validation": {
+            "correct": 5,
+            "wrong": 26,
+            "missed": 18,
+            "positives": 23,
+            "total": 1928,
+            "precision": 0.16129032258064516,
+            "recall": 0.21739130434782608,
+            "f1": 0.18518518518518517,
+            "filter_missed": 2,
+            "wrong_leader": 5,
+            "below_threshold": 11
+          },
+          "test": {
+            "correct": 1,
+            "wrong": 13,
+            "missed": 12,
+            "positives": 13,
+            "total": 1288,
+            "precision": 0.07142857142857142,
+            "recall": 0.07692307692307693,
+            "f1": 0.07407407407407407,
+            "filter_missed": 4,
+            "wrong_leader": 2,
+            "below_threshold": 6
+          },
+          "all": {
+            "correct": 6,
+            "wrong": 39,
+            "missed": 30,
+            "positives": 36,
+            "total": 3216,
+            "precision": 0.13333333333333333,
+            "recall": 0.16666666666666666,
+            "f1": 0.14814814814814814,
+            "filter_missed": 6,
+            "wrong_leader": 7,
+            "below_threshold": 17
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 13,
+              "positives": 13,
+              "total": 1288,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 4,
+              "wrong_leader": 2,
+              "below_threshold": 7
+            },
+            "all": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 36,
+              "positives": 36,
+              "total": 3216,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 6,
+              "wrong_leader": 7,
+              "below_threshold": 23
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "rosberta",
+      "contract": {
+        "model": "ai-forever/ru-en-RoSBERTa",
+        "normalization": "L2",
+        "dtype": "float32",
+        "device": "cpu",
+        "threads": 2,
+        "query_rule": "classification: ",
+        "passage_rule": "classification: ",
+        "backend": "sentence_transformers",
+        "revision": "89fb1651989adbb1cfcfdedafd7d102951ad0555",
+        "max_sequence_length": 512,
+        "dimension": 1024
+      },
+      "report_sha256": "7dbebc97d37266343fdaefb205a084f1277e696629a97c1ad3e2aa2397da590c",
+      "timing": {
+        "load_seconds": 5.787801099999342,
+        "unique_queries": 985,
+        "unique_passages": 271,
+        "single_query_mean_ms": 189.76988131989995,
+        "single_query_p95_ms": 277.1537399996302,
+        "passage_batch_mean_ms": 99.81768929888838,
+        "ranking": [
+          {
+            "solutions": 15,
+            "mean_ms": 0.5374399988795631,
+            "p95_ms": 0.618560003931634
+          },
+          {
+            "solutions": 50,
+            "mean_ms": 1.3972299988381565,
+            "p95_ms": 1.5270500000042375
+          },
+          {
+            "solutions": 100,
+            "mean_ms": 2.8103300006478094,
+            "p95_ms": 3.0070699991483707
+          },
+          {
+            "solutions": 200,
+            "mean_ms": 5.469829999492504,
+            "p95_ms": 5.766585006495006
+          }
+        ],
+        "excludes_sqlite_telegram": true
+      },
+      "process_memory": {
+        "rss_mib": 1637.1484375,
+        "peak_rss_mib": 1701.2734375,
+        "includes_python_libraries_vectors": true
+      },
+      "scenarios": [
+        {
+          "name": "bank_review_v2",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 127,
+            "positives": 32,
+            "excluded": 0
+          },
+          "threshold": 0.7007707529640491,
+          "leader_correct_on_passed_positives": 16,
+          "validation": {
+            "correct": 6,
+            "wrong": 64,
+            "missed": 14,
+            "positives": 20,
+            "total": 1928,
+            "precision": 0.08571428571428572,
+            "recall": 0.3,
+            "f1": 0.13333333333333333,
+            "filter_missed": 1,
+            "wrong_leader": 7,
+            "below_threshold": 6
+          },
+          "test": {
+            "correct": 3,
+            "wrong": 17,
+            "missed": 9,
+            "positives": 12,
+            "total": 1288,
+            "precision": 0.15,
+            "recall": 0.25,
+            "f1": 0.1875,
+            "filter_missed": 4,
+            "wrong_leader": 4,
+            "below_threshold": 1
+          },
+          "all": {
+            "correct": 9,
+            "wrong": 81,
+            "missed": 23,
+            "positives": 32,
+            "total": 3216,
+            "precision": 0.1,
+            "recall": 0.28125,
+            "f1": 0.14754098360655737,
+            "filter_missed": 5,
+            "wrong_leader": 11,
+            "below_threshold": 7
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 12,
+              "positives": 12,
+              "total": 1288,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 4,
+              "wrong_leader": 4,
+              "below_threshold": 4
+            },
+            "all": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 32,
+              "positives": 32,
+              "total": 3216,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 5,
+              "wrong_leader": 11,
+              "below_threshold": 16
+            }
+          }
+        },
+        {
+          "name": "with_inferred",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 136,
+            "positives": 36,
+            "excluded": 0
+          },
+          "threshold": 0.7424170787554771,
+          "leader_correct_on_passed_positives": 19,
+          "validation": {
+            "correct": 4,
+            "wrong": 21,
+            "missed": 19,
+            "positives": 23,
+            "total": 1928,
+            "precision": 0.16,
+            "recall": 0.17391304347826086,
+            "f1": 0.16666666666666666,
+            "filter_missed": 2,
+            "wrong_leader": 7,
+            "below_threshold": 10
+          },
+          "test": {
+            "correct": 1,
+            "wrong": 5,
+            "missed": 12,
+            "positives": 13,
+            "total": 1288,
+            "precision": 0.16666666666666666,
+            "recall": 0.07692307692307693,
+            "f1": 0.10526315789473684,
+            "filter_missed": 4,
+            "wrong_leader": 4,
+            "below_threshold": 4
+          },
+          "all": {
+            "correct": 5,
+            "wrong": 26,
+            "missed": 31,
+            "positives": 36,
+            "total": 3216,
+            "precision": 0.16129032258064516,
+            "recall": 0.1388888888888889,
+            "f1": 0.14925373134328357,
+            "filter_missed": 6,
+            "wrong_leader": 11,
+            "below_threshold": 14
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 13,
+              "positives": 13,
+              "total": 1288,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 4,
+              "wrong_leader": 4,
+              "below_threshold": 5
+            },
+            "all": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 36,
+              "positives": 36,
+              "total": 3216,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 6,
+              "wrong_leader": 11,
+              "below_threshold": 19
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "frida",
+      "contract": {
+        "model": "ai-forever/FRIDA",
+        "normalization": "L2",
+        "dtype": "float32",
+        "device": "cpu",
+        "threads": 2,
+        "query_rule": "search_query: ",
+        "passage_rule": "search_document: ",
+        "backend": "sentence_transformers",
+        "revision": "850455b605544a944739b25f81ddf812b6e3d0d5",
+        "max_sequence_length": 512,
+        "dimension": 1536
+      },
+      "report_sha256": "e40a3afdf990783c598a4e306f1a1ba341b7c4f9eccf4a1ceb4cc23a04bcfc89",
+      "timing": {
+        "load_seconds": 6.754583299989463,
+        "unique_queries": 985,
+        "unique_passages": 271,
+        "single_query_mean_ms": 338.6818381727095,
+        "single_query_p95_ms": 508.5237000021152,
+        "passage_batch_mean_ms": 229.09585313653062,
+        "ranking": [
+          {
+            "solutions": 15,
+            "mean_ms": 0.5492599986610003,
+            "p95_ms": 0.6439299926569217
+          },
+          {
+            "solutions": 50,
+            "mean_ms": 1.478429998678621,
+            "p95_ms": 1.7738649978127792
+          },
+          {
+            "solutions": 100,
+            "mean_ms": 2.818619998288341,
+            "p95_ms": 2.8511849966889713
+          },
+          {
+            "solutions": 200,
+            "mean_ms": 6.041199997707736,
+            "p95_ms": 7.809444994927613
+          }
+        ],
+        "excludes_sqlite_telegram": true
+      },
+      "process_memory": {
+        "rss_mib": 3026.09765625,
+        "peak_rss_mib": 3512.18359375,
+        "includes_python_libraries_vectors": true
+      },
+      "scenarios": [
+        {
+          "name": "bank_review_v2",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 127,
+            "positives": 32,
+            "excluded": 0
+          },
+          "threshold": 0.4586302301064333,
+          "leader_correct_on_passed_positives": 23,
+          "validation": {
+            "correct": 8,
+            "wrong": 46,
+            "missed": 12,
+            "positives": 20,
+            "total": 1928,
+            "precision": 0.14814814814814814,
+            "recall": 0.4,
+            "f1": 0.21621621621621623,
+            "filter_missed": 1,
+            "wrong_leader": 3,
+            "below_threshold": 8
+          },
+          "test": {
+            "correct": 4,
+            "wrong": 8,
+            "missed": 8,
+            "positives": 12,
+            "total": 1288,
+            "precision": 0.3333333333333333,
+            "recall": 0.3333333333333333,
+            "f1": 0.3333333333333333,
+            "filter_missed": 4,
+            "wrong_leader": 1,
+            "below_threshold": 3
+          },
+          "all": {
+            "correct": 12,
+            "wrong": 54,
+            "missed": 20,
+            "positives": 32,
+            "total": 3216,
+            "precision": 0.18181818181818182,
+            "recall": 0.375,
+            "f1": 0.24489795918367346,
+            "filter_missed": 5,
+            "wrong_leader": 4,
+            "below_threshold": 11
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 12,
+              "positives": 12,
+              "total": 1288,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 4,
+              "wrong_leader": 1,
+              "below_threshold": 7
+            },
+            "all": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 32,
+              "positives": 32,
+              "total": 3216,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 5,
+              "wrong_leader": 4,
+              "below_threshold": 23
+            }
+          }
+        },
+        {
+          "name": "with_inferred",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 136,
+            "positives": 36,
+            "excluded": 0
+          },
+          "threshold": 0.49201696826583663,
+          "leader_correct_on_passed_positives": 26,
+          "validation": {
+            "correct": 8,
+            "wrong": 34,
+            "missed": 15,
+            "positives": 23,
+            "total": 1928,
+            "precision": 0.19047619047619047,
+            "recall": 0.34782608695652173,
+            "f1": 0.24615384615384617,
+            "filter_missed": 2,
+            "wrong_leader": 3,
+            "below_threshold": 10
+          },
+          "test": {
+            "correct": 5,
+            "wrong": 8,
+            "missed": 8,
+            "positives": 13,
+            "total": 1288,
+            "precision": 0.38461538461538464,
+            "recall": 0.38461538461538464,
+            "f1": 0.38461538461538464,
+            "filter_missed": 4,
+            "wrong_leader": 1,
+            "below_threshold": 3
+          },
+          "all": {
+            "correct": 13,
+            "wrong": 42,
+            "missed": 23,
+            "positives": 36,
+            "total": 3216,
+            "precision": 0.23636363636363636,
+            "recall": 0.3611111111111111,
+            "f1": 0.2857142857142857,
+            "filter_missed": 6,
+            "wrong_leader": 4,
+            "below_threshold": 13
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 13,
+              "positives": 13,
+              "total": 1288,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 4,
+              "wrong_leader": 1,
+              "below_threshold": 8
+            },
+            "all": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 36,
+              "positives": 36,
+              "total": 3216,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 6,
+              "wrong_leader": 4,
+              "below_threshold": 26
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "qwen-0.6b",
+      "contract": {
+        "model": "Qwen/Qwen3-Embedding-0.6B",
+        "normalization": "L2",
+        "dtype": "float32",
+        "device": "cpu",
+        "threads": 2,
+        "query_rule": "Instruct: Given a web search query, retrieve relevant passages that answer the query\nQuery:",
+        "passage_rule": "plain",
+        "backend": "sentence_transformers",
+        "revision": "97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3",
+        "max_sequence_length": 32768,
+        "dimension": 1024
+      },
+      "report_sha256": "4c7d1243a63f800dc23be5f5e9333bf4527b3b979cf0584eec4c0747c74b6ba2",
+      "timing": {
+        "load_seconds": 17.427627199998824,
+        "unique_queries": 985,
+        "unique_passages": 271,
+        "single_query_mean_ms": 339.62011725881416,
+        "single_query_p95_ms": 522.8402800043114,
+        "passage_batch_mean_ms": 182.591102583028,
+        "ranking": [
+          {
+            "solutions": 15,
+            "mean_ms": 0.6707100037601776,
+            "p95_ms": 0.8570700068958104
+          },
+          {
+            "solutions": 50,
+            "mean_ms": 1.6127199967741035,
+            "p95_ms": 2.2416499959945213
+          },
+          {
+            "solutions": 100,
+            "mean_ms": 3.4707699989667162,
+            "p95_ms": 5.269454991503153
+          },
+          {
+            "solutions": 200,
+            "mean_ms": 5.986700001813006,
+            "p95_ms": 7.8517050031223325
+          }
+        ],
+        "excludes_sqlite_telegram": true
+      },
+      "process_memory": {
+        "rss_mib": 2777.51953125,
+        "peak_rss_mib": 3789.44921875,
+        "includes_python_libraries_vectors": true
+      },
+      "scenarios": [
+        {
+          "name": "bank_review_v2",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 127,
+            "positives": 32,
+            "excluded": 0
+          },
+          "threshold": 0.6306661603729021,
+          "leader_correct_on_passed_positives": 17,
+          "validation": {
+            "correct": 6,
+            "wrong": 34,
+            "missed": 14,
+            "positives": 20,
+            "total": 1928,
+            "precision": 0.15,
+            "recall": 0.3,
+            "f1": 0.2,
+            "filter_missed": 1,
+            "wrong_leader": 6,
+            "below_threshold": 7
+          },
+          "test": {
+            "correct": 3,
+            "wrong": 19,
+            "missed": 9,
+            "positives": 12,
+            "total": 1288,
+            "precision": 0.13636363636363635,
+            "recall": 0.25,
+            "f1": 0.17647058823529413,
+            "filter_missed": 4,
+            "wrong_leader": 4,
+            "below_threshold": 1
+          },
+          "all": {
+            "correct": 9,
+            "wrong": 53,
+            "missed": 23,
+            "positives": 32,
+            "total": 3216,
+            "precision": 0.14516129032258066,
+            "recall": 0.28125,
+            "f1": 0.19148936170212766,
+            "filter_missed": 5,
+            "wrong_leader": 10,
+            "below_threshold": 8
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 12,
+              "positives": 12,
+              "total": 1288,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 4,
+              "wrong_leader": 4,
+              "below_threshold": 4
+            },
+            "all": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 32,
+              "positives": 32,
+              "total": 3216,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 5,
+              "wrong_leader": 10,
+              "below_threshold": 17
+            }
+          }
+        },
+        {
+          "name": "with_inferred",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 136,
+            "positives": 36,
+            "excluded": 0
+          },
+          "threshold": 0.6456027460060897,
+          "leader_correct_on_passed_positives": 20,
+          "validation": {
+            "correct": 7,
+            "wrong": 29,
+            "missed": 16,
+            "positives": 23,
+            "total": 1928,
+            "precision": 0.19444444444444445,
+            "recall": 0.30434782608695654,
+            "f1": 0.23728813559322035,
+            "filter_missed": 2,
+            "wrong_leader": 6,
+            "below_threshold": 8
+          },
+          "test": {
+            "correct": 2,
+            "wrong": 13,
+            "missed": 11,
+            "positives": 13,
+            "total": 1288,
+            "precision": 0.13333333333333333,
+            "recall": 0.15384615384615385,
+            "f1": 0.14285714285714285,
+            "filter_missed": 4,
+            "wrong_leader": 4,
+            "below_threshold": 3
+          },
+          "all": {
+            "correct": 9,
+            "wrong": 42,
+            "missed": 27,
+            "positives": 36,
+            "total": 3216,
+            "precision": 0.17647058823529413,
+            "recall": 0.25,
+            "f1": 0.20689655172413793,
+            "filter_missed": 6,
+            "wrong_leader": 10,
+            "below_threshold": 11
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 13,
+              "positives": 13,
+              "total": 1288,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 4,
+              "wrong_leader": 4,
+              "below_threshold": 5
+            },
+            "all": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 36,
+              "positives": 36,
+              "total": 3216,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0,
+              "filter_missed": 6,
+              "wrong_leader": 10,
+              "below_threshold": 20
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

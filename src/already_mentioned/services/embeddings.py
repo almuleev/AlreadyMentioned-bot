@@ -37,8 +37,13 @@ def normalize_vector(vector: NDArray[np.float32]) -> NDArray[np.float32]:
 class FastEmbedEmbeddingService(EmbeddingService):
     """Load the local ONNX model only on first use and run it in a worker thread."""
 
-    def __init__(self, cache_dir: str | Path = "models") -> None:
+    def __init__(
+        self, cache_dir: str | Path = "models", *, threads: int | None = None
+    ) -> None:
+        if threads is not None and threads < 1:
+            raise ValueError("Число потоков должно быть положительным")
         self.cache_dir = str(cache_dir)
+        self.threads = threads
         self._model: Any = None
         self._lock = asyncio.Lock()
 
@@ -67,6 +72,8 @@ class FastEmbedEmbeddingService(EmbeddingService):
                     dim=MODEL_DIMENSION,
                     model_file="onnx/model.onnx",
                 )
-            self._model = TextEmbedding(model_name=MODEL_NAME, cache_dir=self.cache_dir)
+            self._model = TextEmbedding(
+                model_name=MODEL_NAME, cache_dir=self.cache_dir, threads=self.threads
+            )
         vector = next(iter(self._model.embed([text])))
         return normalize_vector(vector)
