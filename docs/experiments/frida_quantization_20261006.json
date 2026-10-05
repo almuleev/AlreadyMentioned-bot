@@ -1,0 +1,1175 @@
+{
+  "format_version": 1,
+  "date": "2026-10-06",
+  "models": [
+    {
+      "name": "frida",
+      "contract": {
+        "model": "ai-forever/FRIDA",
+        "normalization": "L2",
+        "dtype": "float32",
+        "device": "cpu",
+        "threads": 2,
+        "query_rule": "search_query: ",
+        "passage_rule": "search_document: ",
+        "backend": "sentence_transformers",
+        "revision": "850455b605544a944739b25f81ddf812b6e3d0d5",
+        "max_sequence_length": 512,
+        "dimension": 1536,
+        "encoding_batch_sizes": {
+          "query": 1,
+          "passage": 1
+        }
+      },
+      "annotation_status": "provisional_not_owner_confirmed",
+      "ranking": "max_question_answer_cosine_same_chat_past_answers_only",
+      "calibration": "full_F1_earlier_60_percent_per_chat_no_margin",
+      "host": {
+        "platform": "Windows-10-10.0.19045-SP0",
+        "cpu": "AMD64 Family 25 Model 33 Stepping 2, AuthenticAMD"
+      },
+      "timing": {
+        "load_seconds": 6.143349800000578,
+        "unique_queries": 985,
+        "unique_passages": 271,
+        "single_query_mean_ms": 354.8304524873483,
+        "single_query_p95_ms": 527.3928800008434,
+        "passage_batch_mean_ms": 374.391293357934,
+        "passage_batch_size": 1,
+        "ranking": [
+          {
+            "solutions": 15,
+            "mean_ms": 0.5813999998281361,
+            "p95_ms": 0.7405800000924498
+          },
+          {
+            "solutions": 50,
+            "mean_ms": 1.627350000126171,
+            "p95_ms": 1.896735000082117
+          },
+          {
+            "solutions": 100,
+            "mean_ms": 3.0048100003114087,
+            "p95_ms": 3.2743200002187223
+          },
+          {
+            "solutions": 200,
+            "mean_ms": 6.211830000211194,
+            "p95_ms": 7.536459999846556
+          }
+        ],
+        "excludes_sqlite_telegram": true
+      },
+      "process_memory": {
+        "rss_mib": 3018.19140625,
+        "peak_rss_mib": 3513.83203125,
+        "includes_python_libraries_vectors": true,
+        "phases": {
+          "after_load_rss_mib": 883.65625,
+          "after_queries_rss_mib": 3009.765625,
+          "max_rss_after_single_query_mib": 3513.6171875,
+          "after_passages_rss_mib": 3009.62890625,
+          "after_load_test_rss_mib": 3014.94921875
+        }
+      },
+      "load_test": {
+        "chats": 5,
+        "cycles": 6,
+        "requests": 30,
+        "interval_seconds_per_chat": 5,
+        "all_messages_pass_filter": true,
+        "mean_response_ms": 2829.4874200000777,
+        "p95_response_ms": 4348.061100000177,
+        "max_response_ms": 4758.9351999995415,
+        "max_queue_wait_ms": 4216.553599999315,
+        "first_cycle_initial_wait_ms": 0.0015999994502635673,
+        "last_cycle_initial_wait_ms": 0.2822999995260034,
+        "duration_seconds": 29.759063699999388,
+        "excludes_telegram_sqlite_os_limits": true
+      },
+      "scenarios": [
+        {
+          "name": "bank_review_v2",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 127,
+            "positives": 32,
+            "excluded": 0
+          },
+          "inputs": [
+            {
+              "name": "reviewed_cases_full.csv",
+              "sha256": "bdf51089e5db2a5c9c662b1ae94fc6870087306925449ed9b59dab29e52fd8a6"
+            },
+            {
+              "name": "chat1_inferred_solution_bank.csv",
+              "sha256": "fb77fbc08b0ae4b5a2b6480bdf6cf4063e6f64b46077dbda6c60d6d95c93b291"
+            },
+            {
+              "name": "chat2_inferred_solution_bank.csv",
+              "sha256": "66ba206e0e7052af347289396300ea781196af1b1aa89353f935d44ce5163e02"
+            },
+            {
+              "name": "chat3_inferred_solution_bank.csv",
+              "sha256": "112eaa9dee0436ca9e7493c0d28c29cf6d3508f875085d86e235edc48c929c5a"
+            },
+            {
+              "name": "chat4_inferred_solution_bank.csv",
+              "sha256": "b1e83a0e200415d6865869b2bd009711b3f11288afe0bda3a5aa2466425774d0"
+            },
+            {
+              "name": "chat5_inferred_solution_bank.csv",
+              "sha256": "816737d0ad06f29a5284774b29ddcff38a02a60d1ab1f0eb24aad0849d8d4754"
+            }
+          ],
+          "threshold": 0.4586302301064333,
+          "validation": {
+            "correct": 8,
+            "wrong": 46,
+            "missed": 12,
+            "correct_silence": 1863,
+            "false_prompt": 45,
+            "wrong_solution": 1,
+            "filter_missed": 1,
+            "wrong_leader": 3,
+            "below_threshold": 8,
+            "margin_missed": 0,
+            "correct_leader_without_filter": 17,
+            "positives": 20,
+            "total": 1928,
+            "precision": 0.14814814814814814,
+            "recall": 0.4,
+            "f1": 0.21621621621621623
+          },
+          "test": {
+            "correct": 4,
+            "wrong": 8,
+            "missed": 8,
+            "correct_silence": 1268,
+            "false_prompt": 8,
+            "wrong_solution": 0,
+            "filter_missed": 4,
+            "wrong_leader": 1,
+            "below_threshold": 3,
+            "margin_missed": 0,
+            "correct_leader_without_filter": 10,
+            "positives": 12,
+            "total": 1288,
+            "precision": 0.3333333333333333,
+            "recall": 0.3333333333333333,
+            "f1": 0.3333333333333333
+          },
+          "all": {
+            "correct": 12,
+            "wrong": 54,
+            "missed": 20,
+            "correct_silence": 3131,
+            "false_prompt": 53,
+            "wrong_solution": 1,
+            "filter_missed": 5,
+            "wrong_leader": 4,
+            "below_threshold": 11,
+            "margin_missed": 0,
+            "correct_leader_without_filter": 27,
+            "positives": 32,
+            "total": 3216,
+            "precision": 0.18181818181818182,
+            "recall": 0.375,
+            "f1": 0.24489795918367346
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 12,
+              "correct_silence": 1276,
+              "false_prompt": 0,
+              "wrong_solution": 0,
+              "filter_missed": 4,
+              "wrong_leader": 1,
+              "below_threshold": 7,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 10,
+              "positives": 12,
+              "total": 1288,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "all": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 32,
+              "correct_silence": 3184,
+              "false_prompt": 0,
+              "wrong_solution": 0,
+              "filter_missed": 5,
+              "wrong_leader": 4,
+              "below_threshold": 23,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 27,
+              "positives": 32,
+              "total": 3216,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            }
+          },
+          "test_by_chat": {
+            "chat1": {
+              "correct": 4,
+              "wrong": 3,
+              "missed": 3,
+              "correct_silence": 612,
+              "false_prompt": 3,
+              "wrong_solution": 0,
+              "filter_missed": 0,
+              "wrong_leader": 1,
+              "below_threshold": 2,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 6,
+              "positives": 7,
+              "total": 622,
+              "precision": 0.5714285714285714,
+              "recall": 0.5714285714285714,
+              "f1": 0.5714285714285714
+            },
+            "chat2": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 0,
+              "correct_silence": 97,
+              "false_prompt": 0,
+              "wrong_solution": 0,
+              "filter_missed": 0,
+              "wrong_leader": 0,
+              "below_threshold": 0,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 0,
+              "positives": 0,
+              "total": 97,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "chat3": {
+              "correct": 0,
+              "wrong": 3,
+              "missed": 4,
+              "correct_silence": 342,
+              "false_prompt": 3,
+              "wrong_solution": 0,
+              "filter_missed": 4,
+              "wrong_leader": 0,
+              "below_threshold": 0,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 3,
+              "positives": 4,
+              "total": 349,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "chat4": {
+              "correct": 0,
+              "wrong": 2,
+              "missed": 1,
+              "correct_silence": 157,
+              "false_prompt": 2,
+              "wrong_solution": 0,
+              "filter_missed": 0,
+              "wrong_leader": 0,
+              "below_threshold": 1,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 1,
+              "positives": 1,
+              "total": 160,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "chat5": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 0,
+              "correct_silence": 60,
+              "false_prompt": 0,
+              "wrong_solution": 0,
+              "filter_missed": 0,
+              "wrong_leader": 0,
+              "below_threshold": 0,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 0,
+              "positives": 0,
+              "total": 60,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            }
+          }
+        },
+        {
+          "name": "with_inferred",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 136,
+            "positives": 36,
+            "excluded": 0
+          },
+          "inputs": [
+            {
+              "name": "reviewed_cases_full.csv",
+              "sha256": "561afbb0b59e079fba40db83a8cdaf7cd3f3b94ff563a43422eea35d3509eb4d"
+            },
+            {
+              "name": "chat1_inferred_solution_bank.csv",
+              "sha256": "fb77fbc08b0ae4b5a2b6480bdf6cf4063e6f64b46077dbda6c60d6d95c93b291"
+            },
+            {
+              "name": "chat2_inferred_solution_bank.csv",
+              "sha256": "5920281c6cc1ac21ac72f37bda5fc085e70f64deaa46dcb5039b0e768bae7437"
+            },
+            {
+              "name": "chat3_inferred_solution_bank.csv",
+              "sha256": "3100720d10ea0574b94bd7f475a2c681a3395795f3bfdaff6ad6c3de9021aab2"
+            },
+            {
+              "name": "chat4_inferred_solution_bank.csv",
+              "sha256": "b1e83a0e200415d6865869b2bd009711b3f11288afe0bda3a5aa2466425774d0"
+            },
+            {
+              "name": "chat5_inferred_solution_bank.csv",
+              "sha256": "816737d0ad06f29a5284774b29ddcff38a02a60d1ab1f0eb24aad0849d8d4754"
+            }
+          ],
+          "threshold": 0.49201696826583663,
+          "validation": {
+            "correct": 8,
+            "wrong": 34,
+            "missed": 15,
+            "correct_silence": 1871,
+            "false_prompt": 34,
+            "wrong_solution": 0,
+            "filter_missed": 2,
+            "wrong_leader": 3,
+            "below_threshold": 10,
+            "margin_missed": 0,
+            "correct_leader_without_filter": 19,
+            "positives": 23,
+            "total": 1928,
+            "precision": 0.19047619047619047,
+            "recall": 0.34782608695652173,
+            "f1": 0.24615384615384617
+          },
+          "test": {
+            "correct": 5,
+            "wrong": 8,
+            "missed": 8,
+            "correct_silence": 1267,
+            "false_prompt": 8,
+            "wrong_solution": 0,
+            "filter_missed": 4,
+            "wrong_leader": 1,
+            "below_threshold": 3,
+            "margin_missed": 0,
+            "correct_leader_without_filter": 11,
+            "positives": 13,
+            "total": 1288,
+            "precision": 0.38461538461538464,
+            "recall": 0.38461538461538464,
+            "f1": 0.38461538461538464
+          },
+          "all": {
+            "correct": 13,
+            "wrong": 42,
+            "missed": 23,
+            "correct_silence": 3138,
+            "false_prompt": 42,
+            "wrong_solution": 0,
+            "filter_missed": 6,
+            "wrong_leader": 4,
+            "below_threshold": 13,
+            "margin_missed": 0,
+            "correct_leader_without_filter": 30,
+            "positives": 36,
+            "total": 3216,
+            "precision": 0.23636363636363636,
+            "recall": 0.3611111111111111,
+            "f1": 0.2857142857142857
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 13,
+              "correct_silence": 1275,
+              "false_prompt": 0,
+              "wrong_solution": 0,
+              "filter_missed": 4,
+              "wrong_leader": 1,
+              "below_threshold": 8,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 11,
+              "positives": 13,
+              "total": 1288,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "all": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 36,
+              "correct_silence": 3180,
+              "false_prompt": 0,
+              "wrong_solution": 0,
+              "filter_missed": 6,
+              "wrong_leader": 4,
+              "below_threshold": 26,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 30,
+              "positives": 36,
+              "total": 3216,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            }
+          },
+          "test_by_chat": {
+            "chat1": {
+              "correct": 4,
+              "wrong": 2,
+              "missed": 3,
+              "correct_silence": 613,
+              "false_prompt": 2,
+              "wrong_solution": 0,
+              "filter_missed": 0,
+              "wrong_leader": 1,
+              "below_threshold": 2,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 6,
+              "positives": 7,
+              "total": 622,
+              "precision": 0.6666666666666666,
+              "recall": 0.5714285714285714,
+              "f1": 0.6153846153846154
+            },
+            "chat2": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 0,
+              "correct_silence": 97,
+              "false_prompt": 0,
+              "wrong_solution": 0,
+              "filter_missed": 0,
+              "wrong_leader": 0,
+              "below_threshold": 0,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 0,
+              "positives": 0,
+              "total": 97,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "chat3": {
+              "correct": 1,
+              "wrong": 5,
+              "missed": 4,
+              "correct_silence": 339,
+              "false_prompt": 5,
+              "wrong_solution": 0,
+              "filter_missed": 4,
+              "wrong_leader": 0,
+              "below_threshold": 0,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 4,
+              "positives": 5,
+              "total": 349,
+              "precision": 0.16666666666666666,
+              "recall": 0.2,
+              "f1": 0.18181818181818182
+            },
+            "chat4": {
+              "correct": 0,
+              "wrong": 1,
+              "missed": 1,
+              "correct_silence": 158,
+              "false_prompt": 1,
+              "wrong_solution": 0,
+              "filter_missed": 0,
+              "wrong_leader": 0,
+              "below_threshold": 1,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 1,
+              "positives": 1,
+              "total": 160,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "chat5": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 0,
+              "correct_silence": 60,
+              "false_prompt": 0,
+              "wrong_solution": 0,
+              "filter_missed": 0,
+              "wrong_leader": 0,
+              "below_threshold": 0,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 0,
+              "positives": 0,
+              "total": 60,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            }
+          }
+        }
+      ],
+      "report_sha256": "6a91894a1a6dfa290a5ed28574a7dc103f017cb10d1120fd1fce114b7a8b6634"
+    },
+    {
+      "name": "frida-int8",
+      "contract": {
+        "model": "ai-forever/FRIDA",
+        "normalization": "L2",
+        "dtype": "float32",
+        "device": "cpu",
+        "threads": 2,
+        "query_rule": "search_query: ",
+        "passage_rule": "search_document: ",
+        "backend": "sentence_transformers",
+        "revision": "850455b605544a944739b25f81ddf812b6e3d0d5",
+        "max_sequence_length": 512,
+        "quantization": {
+          "method": "torch_dynamic_linear_int8",
+          "engine": "onednn",
+          "torch_version": "2.14.0+cpu",
+          "converted_linears": 168,
+          "other_modules": "unchanged_fp32",
+          "seconds": 20.50580749999972,
+          "fp32_storage_copied_bytes": 575695872,
+          "checkpoint_modified": false
+        },
+        "dimension": 1536,
+        "encoding_batch_sizes": {
+          "query": 1,
+          "passage": 1
+        }
+      },
+      "annotation_status": "provisional_not_owner_confirmed",
+      "ranking": "max_question_answer_cosine_same_chat_past_answers_only",
+      "calibration": "full_F1_earlier_60_percent_per_chat_no_margin",
+      "host": {
+        "platform": "Windows-10-10.0.19045-SP0",
+        "cpu": "AMD64 Family 25 Model 33 Stepping 2, AuthenticAMD"
+      },
+      "timing": {
+        "load_seconds": 26.715560200000255,
+        "unique_queries": 985,
+        "unique_passages": 271,
+        "single_query_mean_ms": 237.86317898473516,
+        "single_query_p95_ms": 336.28383999966894,
+        "passage_batch_mean_ms": 233.63895867158644,
+        "passage_batch_size": 1,
+        "ranking": [
+          {
+            "solutions": 15,
+            "mean_ms": 0.5621399997835397,
+            "p95_ms": 0.631935000365047
+          },
+          {
+            "solutions": 50,
+            "mean_ms": 1.4666600000055041,
+            "p95_ms": 1.6669849994286774
+          },
+          {
+            "solutions": 100,
+            "mean_ms": 2.9022200000326848,
+            "p95_ms": 3.039320000425505
+          },
+          {
+            "solutions": 200,
+            "mean_ms": 5.757240000093589,
+            "p95_ms": 5.856335000680701
+          }
+        ],
+        "excludes_sqlite_telegram": true
+      },
+      "process_memory": {
+        "rss_mib": 2379.1796875,
+        "peak_rss_mib": 5407.390625,
+        "includes_python_libraries_vectors": true,
+        "phases": {
+          "after_load_rss_mib": 2266.36328125,
+          "after_queries_rss_mib": 2374.546875,
+          "max_rss_after_single_query_mib": 2375.1640625,
+          "after_passages_rss_mib": 2382.1328125,
+          "after_load_test_rss_mib": 2375.75390625
+        }
+      },
+      "load_test": {
+        "chats": 5,
+        "cycles": 6,
+        "requests": 30,
+        "interval_seconds_per_chat": 5,
+        "all_messages_pass_filter": true,
+        "mean_response_ms": 1711.083703333073,
+        "p95_response_ms": 2683.9471200002663,
+        "max_response_ms": 2723.1336000004376,
+        "max_queue_wait_ms": 2374.861399999645,
+        "first_cycle_initial_wait_ms": 0.0012000000424450263,
+        "last_cycle_initial_wait_ms": 0.33799999982875306,
+        "duration_seconds": 27.656367199999295,
+        "excludes_telegram_sqlite_os_limits": true
+      },
+      "scenarios": [
+        {
+          "name": "bank_review_v2",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 127,
+            "positives": 32,
+            "excluded": 0
+          },
+          "inputs": [
+            {
+              "name": "reviewed_cases_full.csv",
+              "sha256": "bdf51089e5db2a5c9c662b1ae94fc6870087306925449ed9b59dab29e52fd8a6"
+            },
+            {
+              "name": "chat1_inferred_solution_bank.csv",
+              "sha256": "fb77fbc08b0ae4b5a2b6480bdf6cf4063e6f64b46077dbda6c60d6d95c93b291"
+            },
+            {
+              "name": "chat2_inferred_solution_bank.csv",
+              "sha256": "66ba206e0e7052af347289396300ea781196af1b1aa89353f935d44ce5163e02"
+            },
+            {
+              "name": "chat3_inferred_solution_bank.csv",
+              "sha256": "112eaa9dee0436ca9e7493c0d28c29cf6d3508f875085d86e235edc48c929c5a"
+            },
+            {
+              "name": "chat4_inferred_solution_bank.csv",
+              "sha256": "b1e83a0e200415d6865869b2bd009711b3f11288afe0bda3a5aa2466425774d0"
+            },
+            {
+              "name": "chat5_inferred_solution_bank.csv",
+              "sha256": "816737d0ad06f29a5284774b29ddcff38a02a60d1ab1f0eb24aad0849d8d4754"
+            }
+          ],
+          "threshold": 0.47723755658083117,
+          "validation": {
+            "correct": 8,
+            "wrong": 33,
+            "missed": 12,
+            "correct_silence": 1875,
+            "false_prompt": 33,
+            "wrong_solution": 0,
+            "filter_missed": 1,
+            "wrong_leader": 3,
+            "below_threshold": 8,
+            "margin_missed": 0,
+            "correct_leader_without_filter": 17,
+            "positives": 20,
+            "total": 1928,
+            "precision": 0.1951219512195122,
+            "recall": 0.4,
+            "f1": 0.26229508196721313
+          },
+          "test": {
+            "correct": 4,
+            "wrong": 5,
+            "missed": 8,
+            "correct_silence": 1271,
+            "false_prompt": 5,
+            "wrong_solution": 0,
+            "filter_missed": 4,
+            "wrong_leader": 1,
+            "below_threshold": 3,
+            "margin_missed": 0,
+            "correct_leader_without_filter": 10,
+            "positives": 12,
+            "total": 1288,
+            "precision": 0.4444444444444444,
+            "recall": 0.3333333333333333,
+            "f1": 0.38095238095238093
+          },
+          "all": {
+            "correct": 12,
+            "wrong": 38,
+            "missed": 20,
+            "correct_silence": 3146,
+            "false_prompt": 38,
+            "wrong_solution": 0,
+            "filter_missed": 5,
+            "wrong_leader": 4,
+            "below_threshold": 11,
+            "margin_missed": 0,
+            "correct_leader_without_filter": 27,
+            "positives": 32,
+            "total": 3216,
+            "precision": 0.24,
+            "recall": 0.375,
+            "f1": 0.2926829268292683
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 12,
+              "correct_silence": 1276,
+              "false_prompt": 0,
+              "wrong_solution": 0,
+              "filter_missed": 4,
+              "wrong_leader": 1,
+              "below_threshold": 7,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 10,
+              "positives": 12,
+              "total": 1288,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "all": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 32,
+              "correct_silence": 3184,
+              "false_prompt": 0,
+              "wrong_solution": 0,
+              "filter_missed": 5,
+              "wrong_leader": 4,
+              "below_threshold": 23,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 27,
+              "positives": 32,
+              "total": 3216,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            }
+          },
+          "test_by_chat": {
+            "chat1": {
+              "correct": 4,
+              "wrong": 2,
+              "missed": 3,
+              "correct_silence": 613,
+              "false_prompt": 2,
+              "wrong_solution": 0,
+              "filter_missed": 0,
+              "wrong_leader": 1,
+              "below_threshold": 2,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 6,
+              "positives": 7,
+              "total": 622,
+              "precision": 0.6666666666666666,
+              "recall": 0.5714285714285714,
+              "f1": 0.6153846153846154
+            },
+            "chat2": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 0,
+              "correct_silence": 97,
+              "false_prompt": 0,
+              "wrong_solution": 0,
+              "filter_missed": 0,
+              "wrong_leader": 0,
+              "below_threshold": 0,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 0,
+              "positives": 0,
+              "total": 97,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "chat3": {
+              "correct": 0,
+              "wrong": 1,
+              "missed": 4,
+              "correct_silence": 344,
+              "false_prompt": 1,
+              "wrong_solution": 0,
+              "filter_missed": 4,
+              "wrong_leader": 0,
+              "below_threshold": 0,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 3,
+              "positives": 4,
+              "total": 349,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "chat4": {
+              "correct": 0,
+              "wrong": 2,
+              "missed": 1,
+              "correct_silence": 157,
+              "false_prompt": 2,
+              "wrong_solution": 0,
+              "filter_missed": 0,
+              "wrong_leader": 0,
+              "below_threshold": 1,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 1,
+              "positives": 1,
+              "total": 160,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "chat5": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 0,
+              "correct_silence": 60,
+              "false_prompt": 0,
+              "wrong_solution": 0,
+              "filter_missed": 0,
+              "wrong_leader": 0,
+              "below_threshold": 0,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 0,
+              "positives": 0,
+              "total": 60,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            }
+          }
+        },
+        {
+          "name": "with_inferred",
+          "dataset": {
+            "cases": 3216,
+            "solutions": 136,
+            "positives": 36,
+            "excluded": 0
+          },
+          "inputs": [
+            {
+              "name": "reviewed_cases_full.csv",
+              "sha256": "561afbb0b59e079fba40db83a8cdaf7cd3f3b94ff563a43422eea35d3509eb4d"
+            },
+            {
+              "name": "chat1_inferred_solution_bank.csv",
+              "sha256": "fb77fbc08b0ae4b5a2b6480bdf6cf4063e6f64b46077dbda6c60d6d95c93b291"
+            },
+            {
+              "name": "chat2_inferred_solution_bank.csv",
+              "sha256": "5920281c6cc1ac21ac72f37bda5fc085e70f64deaa46dcb5039b0e768bae7437"
+            },
+            {
+              "name": "chat3_inferred_solution_bank.csv",
+              "sha256": "3100720d10ea0574b94bd7f475a2c681a3395795f3bfdaff6ad6c3de9021aab2"
+            },
+            {
+              "name": "chat4_inferred_solution_bank.csv",
+              "sha256": "b1e83a0e200415d6865869b2bd009711b3f11288afe0bda3a5aa2466425774d0"
+            },
+            {
+              "name": "chat5_inferred_solution_bank.csv",
+              "sha256": "816737d0ad06f29a5284774b29ddcff38a02a60d1ab1f0eb24aad0849d8d4754"
+            }
+          ],
+          "threshold": 0.47723755658083117,
+          "validation": {
+            "correct": 10,
+            "wrong": 35,
+            "missed": 13,
+            "correct_silence": 1870,
+            "false_prompt": 35,
+            "wrong_solution": 0,
+            "filter_missed": 2,
+            "wrong_leader": 3,
+            "below_threshold": 8,
+            "margin_missed": 0,
+            "correct_leader_without_filter": 19,
+            "positives": 23,
+            "total": 1928,
+            "precision": 0.2222222222222222,
+            "recall": 0.43478260869565216,
+            "f1": 0.29411764705882354
+          },
+          "test": {
+            "correct": 4,
+            "wrong": 9,
+            "missed": 9,
+            "correct_silence": 1266,
+            "false_prompt": 9,
+            "wrong_solution": 0,
+            "filter_missed": 4,
+            "wrong_leader": 1,
+            "below_threshold": 4,
+            "margin_missed": 0,
+            "correct_leader_without_filter": 11,
+            "positives": 13,
+            "total": 1288,
+            "precision": 0.3076923076923077,
+            "recall": 0.3076923076923077,
+            "f1": 0.3076923076923077
+          },
+          "all": {
+            "correct": 14,
+            "wrong": 44,
+            "missed": 22,
+            "correct_silence": 3136,
+            "false_prompt": 44,
+            "wrong_solution": 0,
+            "filter_missed": 6,
+            "wrong_leader": 4,
+            "below_threshold": 12,
+            "margin_missed": 0,
+            "correct_leader_without_filter": 30,
+            "positives": 36,
+            "total": 3216,
+            "precision": 0.2413793103448276,
+            "recall": 0.3888888888888889,
+            "f1": 0.2978723404255319
+          },
+          "fixed_0_88": {
+            "test": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 13,
+              "correct_silence": 1275,
+              "false_prompt": 0,
+              "wrong_solution": 0,
+              "filter_missed": 4,
+              "wrong_leader": 1,
+              "below_threshold": 8,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 11,
+              "positives": 13,
+              "total": 1288,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "all": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 36,
+              "correct_silence": 3180,
+              "false_prompt": 0,
+              "wrong_solution": 0,
+              "filter_missed": 6,
+              "wrong_leader": 4,
+              "below_threshold": 26,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 30,
+              "positives": 36,
+              "total": 3216,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            }
+          },
+          "test_by_chat": {
+            "chat1": {
+              "correct": 4,
+              "wrong": 2,
+              "missed": 3,
+              "correct_silence": 613,
+              "false_prompt": 2,
+              "wrong_solution": 0,
+              "filter_missed": 0,
+              "wrong_leader": 1,
+              "below_threshold": 2,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 6,
+              "positives": 7,
+              "total": 622,
+              "precision": 0.6666666666666666,
+              "recall": 0.5714285714285714,
+              "f1": 0.6153846153846154
+            },
+            "chat2": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 0,
+              "correct_silence": 97,
+              "false_prompt": 0,
+              "wrong_solution": 0,
+              "filter_missed": 0,
+              "wrong_leader": 0,
+              "below_threshold": 0,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 0,
+              "positives": 0,
+              "total": 97,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "chat3": {
+              "correct": 0,
+              "wrong": 5,
+              "missed": 5,
+              "correct_silence": 339,
+              "false_prompt": 5,
+              "wrong_solution": 0,
+              "filter_missed": 4,
+              "wrong_leader": 0,
+              "below_threshold": 1,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 4,
+              "positives": 5,
+              "total": 349,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "chat4": {
+              "correct": 0,
+              "wrong": 2,
+              "missed": 1,
+              "correct_silence": 157,
+              "false_prompt": 2,
+              "wrong_solution": 0,
+              "filter_missed": 0,
+              "wrong_leader": 0,
+              "below_threshold": 1,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 1,
+              "positives": 1,
+              "total": 160,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "chat5": {
+              "correct": 0,
+              "wrong": 0,
+              "missed": 0,
+              "correct_silence": 60,
+              "false_prompt": 0,
+              "wrong_solution": 0,
+              "filter_missed": 0,
+              "wrong_leader": 0,
+              "below_threshold": 0,
+              "margin_missed": 0,
+              "correct_leader_without_filter": 0,
+              "positives": 0,
+              "total": 60,
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            }
+          }
+        }
+      ],
+      "report_sha256": "b57e5061983ee95ee256ee903ecf90d7410c72c8380fd4de6d91da2d15838ec5"
+    }
+  ],
+  "docker_resource_cap_test": "not_run_daemon_unavailable",
+  "host_cpu_name": "AMD Ryzen 5 5600X 6-Core Processor",
+  "dependencies": {
+    "torch": "2.14.0",
+    "sentence-transformers": "5.7.0",
+    "transformers": "4.45.2",
+    "numpy": "2.5.3",
+    "psutil": "7.2.2"
+  },
+  "changes": [
+    {
+      "scenario": "bank_review_v2",
+      "lost_correct": {
+        "test": 0,
+        "all": 0
+      },
+      "gained_correct": {
+        "test": 0,
+        "all": 0
+      }
+    },
+    {
+      "scenario": "with_inferred",
+      "lost_correct": {
+        "test": 1,
+        "all": 1
+      },
+      "gained_correct": {
+        "test": 0,
+        "all": 2
+      }
+    }
+  ],
+  "initial_attempt": {
+    "status": "batch16_without_fp32_storage_copy_not_paired",
+    "timing": {
+      "load_seconds": 38.53205820000039,
+      "unique_queries": 985,
+      "unique_passages": 271,
+      "single_query_mean_ms": 248.94908771573978,
+      "single_query_p95_ms": 348.42225999964273,
+      "passage_batch_mean_ms": 142.90989261992115,
+      "ranking": [
+        {
+          "solutions": 15,
+          "mean_ms": 0.5561599999055034,
+          "p95_ms": 0.6181099996865669
+        },
+        {
+          "solutions": 50,
+          "mean_ms": 1.498360000186949,
+          "p95_ms": 1.672815000074479
+        },
+        {
+          "solutions": 100,
+          "mean_ms": 2.9649400001289905,
+          "p95_ms": 3.096604999882402
+        },
+        {
+          "solutions": 200,
+          "mean_ms": 5.857749999631778,
+          "p95_ms": 6.025994999799877
+        }
+      ],
+      "excludes_sqlite_telegram": true
+    },
+    "process_memory": {
+      "rss_mib": 4491.03515625,
+      "peak_rss_mib": 4752.0625,
+      "includes_python_libraries_vectors": true,
+      "phases": {
+        "after_load_rss_mib": 4309.953125,
+        "after_queries_rss_mib": 4453.84375,
+        "max_rss_after_single_query_mib": 4458.7109375,
+        "after_passages_rss_mib": 4487.66015625
+      }
+    },
+    "contract": {
+      "model": "ai-forever/FRIDA",
+      "normalization": "L2",
+      "dtype": "float32",
+      "device": "cpu",
+      "threads": 2,
+      "query_rule": "search_query: ",
+      "passage_rule": "search_document: ",
+      "backend": "sentence_transformers",
+      "revision": "850455b605544a944739b25f81ddf812b6e3d0d5",
+      "max_sequence_length": 512,
+      "quantization": {
+        "method": "torch_dynamic_linear_int8",
+        "engine": "onednn",
+        "torch_version": "2.14.0+cpu",
+        "converted_linears": 168,
+        "other_modules": "unchanged_fp32",
+        "seconds": 29.608566200000496,
+        "checkpoint_modified": false
+      },
+      "dimension": 1536
+    },
+    "report_sha256": "590ecf743d0a97c6cb190b5319e8bd1239dac492f05dd160061f4d52df8e5eac"
+  }
+}
