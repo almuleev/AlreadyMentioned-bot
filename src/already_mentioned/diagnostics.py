@@ -8,10 +8,11 @@ import aiosqlite
 import numpy as np
 
 from already_mentioned.config import load_settings
+from already_mentioned.database.embedding_contract import require_frida
 from already_mentioned.repositories.chats import ChatRepository
 from already_mentioned.repositories.solutions import SolutionRepository
 from already_mentioned.services.embeddings import (
-    FastEmbedEmbeddingService,
+    FridaEmbeddingService,
     normalize_vector,
 )
 from already_mentioned.services.questions import is_question_candidate
@@ -28,6 +29,12 @@ async def inspect_question(
 
     database_uri = database_path.resolve().as_uri() + "?mode=ro"
     async with aiosqlite.connect(database_uri, uri=True) as connection:
+        await connection.execute("BEGIN")
+        try:
+            await require_frida(connection)
+        except (RuntimeError, ValueError) as error:
+            print(str(error))
+            return 1
         chats = ChatRepository(connection)
         solutions = SolutionRepository(connection)
         if chat_id is None:
@@ -52,7 +59,7 @@ async def inspect_question(
             print(f"В чате {chat_id} пока нет сохранённых решений.")
             return 0
 
-        embeddings = FastEmbedEmbeddingService()
+        embeddings = FridaEmbeddingService()
         query = normalize_vector(await embeddings.embed_query(question))
         best = None
         skipped = 0

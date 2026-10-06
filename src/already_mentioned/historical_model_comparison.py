@@ -35,7 +35,7 @@ from already_mentioned.services.embeddings import (
 from already_mentioned.services.questions import is_question_candidate
 from already_mentioned.services.similarity import cosine_similarity
 
-FAST = {"current": MODEL_NAME, **ALTERNATIVES}
+FAST = {"e5-small": MODEL_NAME, **ALTERNATIVES}
 
 
 def quantize_linears(model):
@@ -80,6 +80,7 @@ def quantize_linears(model):
 def load_encoder(name, cache, threads):
     """Use only existing cache; one model per process, no production vectors."""
     started = perf_counter()
+    name = "frida" if name == "current" else name
     int8 = name == "frida-int8"
     name = "frida" if int8 else name
     contract = {
@@ -94,7 +95,7 @@ def load_encoder(name, cache, threads):
     if name in FAST:
         from fastembed import TextEmbedding
 
-        if name == "current":
+        if name == "e5-small":
             service = FastEmbedEmbeddingService(cache, threads=threads)
             service._encode_sync("query: пробный вопрос")
             model = service._model
@@ -394,7 +395,7 @@ def main():
         description="Сравнить локальные модели на исторических CSV без Telegram и БД"
     )
     parser.add_argument(
-        "--model", required=True, choices=(*FAST, *MODELS, "frida-int8"),
+        "--model", required=True, choices=("current", *FAST, *MODELS, "frida-int8"),
     )
     parser.add_argument("--datasets", type=Path, nargs="+", required=True)
     parser.add_argument("--output", type=Path,

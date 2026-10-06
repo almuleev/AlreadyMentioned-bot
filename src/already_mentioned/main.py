@@ -6,8 +6,10 @@ import logging
 from aiogram import Dispatcher
 
 from already_mentioned.bot.factory import create_bot
-from already_mentioned.config import load_settings
+from already_mentioned.config import Settings, load_settings
 from already_mentioned.database.connection import connect_database
+from already_mentioned.database.embedding_contract import require_frida
+from already_mentioned.database.process_lock import database_process_lock
 from already_mentioned.database.schema import initialize_database
 from already_mentioned.handlers.feedback import router as feedback_router
 from already_mentioned.handlers.management import router as management_router
@@ -18,13 +20,18 @@ from already_mentioned.repositories.chats import ChatRepository
 from already_mentioned.repositories.feedback import FeedbackRepository
 from already_mentioned.repositories.solutions import SolutionRepository
 from already_mentioned.services.confirmations import ForgetConfirmations
-from already_mentioned.services.embeddings import FastEmbedEmbeddingService
+from already_mentioned.services.embeddings import FridaEmbeddingService
 from already_mentioned.services.reply_cache import ReplyCache
 from already_mentioned.services.search import SearchService
 
 
 async def run() -> None:
     settings = load_settings()
+    with database_process_lock(settings.database_path):
+        await _run(settings)
+
+
+async def _run(settings: Settings) -> None:
     bot = create_bot(settings)
     dispatcher = Dispatcher()
     dispatcher.include_router(start_router)
@@ -36,9 +43,12 @@ async def run() -> None:
     try:
         database = await connect_database(settings.database_path)
         await initialize_database(database)
+        await require_frida(database, adopt_empty=True)
         chats = ChatRepository(database)
         solutions = SolutionRepository(database)
-        embeddings = FastEmbedEmbeddingService()
+        embeddings = FridaEmbeddingService()
+        # Fail before polling if the pinned cache cannot be loaded.
+        await embeddings.embed_query("Проверка загрузки")
         await dispatcher.start_polling(
             bot,
             close_bot_session=False,

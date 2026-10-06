@@ -6,6 +6,10 @@ AlreadyMentioned — самостоятельно размещаемый Telegra
 
 Подробные правила работы, настройка порога и объяснение оценок сходства — в [руководстве на русском](docs/GUIDE.ru.md). Устройство кода, запуск и точки расширения описаны в [руководстве для разработчика](docs/DEVELOPMENT.ru.md).
 
+Основная embedding-модель — FRIDA. Перед первым запуском подготовьте локальный
+кэш; существующей базе E5 нужен полный пересчёт векторов с резервной копией.
+Порядок локального и Docker-перехода: [миграция FRIDA](docs/FRIDA_MIGRATION.ru.md).
+
 [Сайт проекта](https://almuleev.github.io/AlreadyMentioned-bot/) · [Репозиторий на GitHub](https://github.com/almuleev/AlreadyMentioned-bot)
 
 ## Структура

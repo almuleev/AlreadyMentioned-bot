@@ -5,6 +5,7 @@ import pytest
 
 from already_mentioned import diagnostics
 from already_mentioned.database.connection import connect_database
+from already_mentioned.database.embedding_contract import require_frida
 from already_mentioned.database.schema import initialize_database
 from already_mentioned.repositories.chats import ChatRepository
 from already_mentioned.repositories.solutions import SolutionRepository
@@ -17,6 +18,7 @@ async def test_inspect_question_reports_score_without_changing_database(
     database_path = tmp_path / "bot.db"
     connection = await connect_database(database_path)
     await initialize_database(connection)
+    await require_frida(connection, adopt_empty=True)
     chats = ChatRepository(connection)
     await chats.ensure_chat(-1001, "Test")
     await chats.set_threshold(-1001, 0.9)
@@ -26,7 +28,12 @@ async def test_inspect_question_reports_score_without_changing_database(
         answer_message_id=2,
         question_text="Где находится личный кабинет?",
         answer_text="На сайте.",
-        question_embedding=np.array([1.0, 0.0], dtype=np.float32).tobytes(),
+        question_embedding=np.pad(
+            np.array([1.0, 0.0], dtype=np.float32), (0, 1534)
+        ).tobytes(),
+        answer_embedding=np.pad(
+            np.array([0.0, 1.0], dtype=np.float32), (0, 1534)
+        ).tobytes(),
         question_link="https://t.me/c/1/1",
         answer_link="https://t.me/c/1/2",
     )
@@ -35,12 +42,14 @@ async def test_inspect_question_reports_score_without_changing_database(
 
     class FakeEmbeddings:
         async def embed_query(self, _text):
-            return np.array([0.88, np.sqrt(1 - 0.88**2)], dtype=np.float32)
+            return np.pad(
+                np.array([0.88, np.sqrt(1 - 0.88**2)], dtype=np.float32), (0, 1534)
+            )
 
         async def embed_passage(self, _text):
             return np.array([0.0, 1.0], dtype=np.float32)
 
-    monkeypatch.setattr(diagnostics, "FastEmbedEmbeddingService", FakeEmbeddings)
+    monkeypatch.setattr(diagnostics, "FridaEmbeddingService", FakeEmbeddings)
     result = await diagnostics.inspect_question(
         "Где открыть кабинет?", None, database_path
     )

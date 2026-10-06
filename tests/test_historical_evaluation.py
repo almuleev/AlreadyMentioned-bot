@@ -221,7 +221,7 @@ def test_cli_produces_identified_report_without_model_or_database(
 ):
     cases, bank = dataset
     output = tmp_path / "report.json"
-    monkeypatch.setattr(evaluation, "FastEmbedEmbeddingService", FakeEmbeddings)
+    monkeypatch.setattr(evaluation, "FridaEmbeddingService", FakeEmbeddings)
     monkeypatch.setattr(
         sys,
         "argv",

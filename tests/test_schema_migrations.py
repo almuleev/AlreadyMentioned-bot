@@ -74,7 +74,7 @@ async def test_version_one_migrates_answer_vectors_without_losing_data(
         assert solution.answer_text == "Ответ"
         assert solution.answer_embedding is None
         async with connection.execute("PRAGMA user_version") as cursor:
-            assert (await cursor.fetchone())[0] == 2
+            assert (await cursor.fetchone())[0] == 3
     finally:
         await connection.close()
 
@@ -87,7 +87,7 @@ async def test_new_database_is_versioned_and_repeated_start_is_safe(tmp_path) ->
         await schema.initialize_database(connection)
         await schema.initialize_database(connection)
         async with connection.execute("PRAGMA user_version") as cursor:
-            assert (await cursor.fetchone())[0] == 2
+            assert (await cursor.fetchone())[0] == 3
         await ChatRepository(connection).ensure_chat(-1001, "Тест")
         assert (await ChatRepository(connection).get_chat(-1001)).title == "Тест"
     finally:
@@ -140,7 +140,7 @@ async def test_adopts_copy_of_old_schema_without_changing_chat_data(tmp_path) ->
         ]
         assert await feedback.list_for_chat(-1002) == []
         async with connection.execute("PRAGMA user_version") as cursor:
-            assert (await cursor.fetchone())[0] == 2
+            assert (await cursor.fetchone())[0] == 3
     finally:
         await connection.close()
 
@@ -178,16 +178,16 @@ async def test_migration_statements_and_version_roll_back_together(
     connection = await connect_database(tmp_path / "migration.db")
     try:
         await schema.initialize_database(connection)
-        monkeypatch.setattr(schema, "SCHEMA_VERSION", 3)
+        monkeypatch.setattr(schema, "SCHEMA_VERSION", 4)
         monkeypatch.setattr(
             schema,
             "MIGRATIONS",
-            {3: ("CREATE TABLE temporary_example (id INTEGER)", "INVALID SQL")},
+            {4: ("CREATE TABLE temporary_example (id INTEGER)", "INVALID SQL")},
         )
         with pytest.raises(aiosqlite.OperationalError):
             await schema.initialize_database(connection)
         async with connection.execute("PRAGMA user_version") as cursor:
-            assert (await cursor.fetchone())[0] == 2
+            assert (await cursor.fetchone())[0] == 3
         async with connection.execute(
             "SELECT name FROM sqlite_master WHERE name = 'temporary_example'"
         ) as cursor:
@@ -203,16 +203,16 @@ async def test_future_migration_applies_once_in_a_transaction(
     connection = await connect_database(tmp_path / "future.db")
     try:
         await schema.initialize_database(connection)
-        monkeypatch.setattr(schema, "SCHEMA_VERSION", 3)
+        monkeypatch.setattr(schema, "SCHEMA_VERSION", 4)
         monkeypatch.setattr(
             schema,
             "MIGRATIONS",
-            {3: ("CREATE INDEX test_chat_title ON chats(title)",)},
+            {4: ("CREATE INDEX test_chat_title ON chats(title)",)},
         )
         await schema.initialize_database(connection)
         await schema.initialize_database(connection)
         async with connection.execute("PRAGMA user_version") as cursor:
-            assert (await cursor.fetchone())[0] == 3
+            assert (await cursor.fetchone())[0] == 4
         async with connection.execute(
             "SELECT name FROM sqlite_master WHERE name = 'test_chat_title'"
         ) as cursor:

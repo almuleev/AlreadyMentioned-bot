@@ -11,7 +11,7 @@ from already_mentioned.evaluation import Result, benchmark, evaluate
 from already_mentioned.evaluation_cases import CASES
 from already_mentioned.services.embeddings import (
     EmbeddingService,
-    FastEmbedEmbeddingService,
+    FridaEmbeddingService,
     normalize_vector,
 )
 from already_mentioned.services.questions import is_question_candidate
@@ -97,7 +97,7 @@ async def run(names: tuple[str, ...], *, details: bool = False) -> None:
     for name in names:
         try:
             embeddings: EmbeddingService = (
-                FastEmbedEmbeddingService() if name == "current"
+                FridaEmbeddingService() if name == "current"
                 else PlainTextFastEmbed(ALTERNATIVES[name])
             )
             result = await compare_one(name, embeddings)

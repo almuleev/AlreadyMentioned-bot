@@ -71,7 +71,7 @@ def test_counts_filter_ranking_and_wrong_answer() -> None:
 def test_cli_reports_multiple_thresholds_without_database_or_model(
     monkeypatch, capsys
 ) -> None:
-    monkeypatch.setattr(evaluation, "FastEmbedEmbeddingService", FakeEmbeddings)
+    monkeypatch.setattr(evaluation, "FridaEmbeddingService", FakeEmbeddings)
     monkeypatch.setattr(
         sys,
         "argv",
@@ -111,7 +111,7 @@ def test_model_comparison_cli_uses_same_cases_without_download(
         def __init__(self, _name: str) -> None:
             pass
 
-    monkeypatch.setattr(model_comparison, "FastEmbedEmbeddingService", FakeEmbeddings)
+    monkeypatch.setattr(model_comparison, "FridaEmbeddingService", FakeEmbeddings)
     monkeypatch.setattr(model_comparison, "PlainTextFastEmbed", FakeAlternative)
     monkeypatch.setattr(
         sys, "argv", ["model_comparison", "--models", "current", "minilm", "--details"]

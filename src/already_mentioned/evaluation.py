@@ -11,7 +11,7 @@ import numpy as np
 from already_mentioned.evaluation_cases import CASES, Case
 from already_mentioned.services.embeddings import (
     EmbeddingService,
-    FastEmbedEmbeddingService,
+    FridaEmbeddingService,
     normalize_vector,
 )
 from already_mentioned.services.questions import is_question_candidate
@@ -194,7 +194,7 @@ def main() -> None:
         parser.error("размеры и число повторов должны быть положительными")
     asyncio.run(
         run(
-            FastEmbedEmbeddingService(),
+            FridaEmbeddingService(),
             tuple(args.thresholds),
             tuple(args.sizes),
             args.repeats,

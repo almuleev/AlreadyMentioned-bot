@@ -13,16 +13,25 @@ from time import perf_counter
 import numpy as np
 
 from already_mentioned.services.embeddings import (
+    FRIDA_CONTRACT,
     MODEL_DIMENSION,
     MODEL_NAME,
     EmbeddingService,
-    FastEmbedEmbeddingService,
+    FridaEmbeddingService,
     normalize_vector,
 )
 from already_mentioned.services.questions import is_question_candidate
 from already_mentioned.services.similarity import cosine_similarity
 
 STRATEGIES = ("question", "answer", "both")
+LEGACY_REPORT_CONTRACT = {
+    "model": MODEL_NAME,
+    "dimension": MODEL_DIMENSION,
+    "query_prefix": "query:",
+    "saved_prefix": "passage:",
+    "normalization": "L2",
+    "dtype": "float32",
+}
 
 
 @dataclass(frozen=True)
@@ -297,7 +306,12 @@ def calibrate(
     return best
 
 
-async def run(args: argparse.Namespace, embeddings: EmbeddingService) -> dict:
+async def run(
+    args: argparse.Namespace,
+    embeddings: EmbeddingService,
+    *,
+    contract: dict = LEGACY_REPORT_CONTRACT,
+) -> dict:
     cases, solutions, excluded = load_dataset(args.cases, args.banks)
     validation_ids, test_ids = split_cases(cases, args.validation_fraction)
     queries, passages, timing = await encode_dataset(cases, solutions, embeddings)
@@ -352,14 +366,7 @@ async def run(args: argparse.Namespace, embeddings: EmbeddingService) -> dict:
     report = {
         "format_version": 1,
         "annotation_status": "provisional_not_owner_confirmed",
-        "model_contract": {
-            "model": MODEL_NAME,
-            "dimension": MODEL_DIMENSION,
-            "query_prefix": "query:",
-            "saved_prefix": "passage:",
-            "normalization": "L2",
-            "dtype": "float32",
-        },
+        "model_contract": contract,
         "inputs": [
             {"name": path.name, "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}
             for path in (args.cases, *args.banks)
@@ -414,7 +421,13 @@ def main() -> None:
     }:
         parser.error("Отчёт должен быть отдельным JSON-файлом")
     try:
-        report = asyncio.run(run(args, FastEmbedEmbeddingService(args.cache_dir)))
+        report = asyncio.run(
+            run(
+                args,
+                FridaEmbeddingService(args.cache_dir),
+                contract=FRIDA_CONTRACT,
+            )
+        )
     except (ValueError, OSError) as error:
         parser.exit(1, f"Не удалось выполнить проверку: {error}\n")
     print(

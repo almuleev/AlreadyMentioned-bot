@@ -8,7 +8,8 @@ WORKDIR /app
 COPY pyproject.toml README.md ./
 COPY src ./src
 
-RUN python -m pip install --no-cache-dir . \
+RUN python -m pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu \
+    && python -m pip install --no-cache-dir . \
     && groupadd --system bot \
     && useradd --system --create-home --gid bot --home-dir /home/bot bot \
     && mkdir -p /app/data /app/models \

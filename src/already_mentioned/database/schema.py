@@ -1,13 +1,24 @@
 """Versioned SQLite schema; version 1 is the original three-table layout."""
 
+import json
+
 import aiosqlite
 
-SCHEMA_VERSION = 2
+from already_mentioned.services.embeddings import E5_CONTRACT
+
+SCHEMA_VERSION = 3
 
 # Add consecutive target versions here when an existing table must change.
 # Each tuple runs inside the same transaction as its user_version update.
 MIGRATIONS: dict[int, tuple[str, ...]] = {
     2: ("ALTER TABLE solutions ADD COLUMN answer_embedding BLOB",),
+    3: (
+        "CREATE TABLE embedding_state (id INTEGER PRIMARY KEY CHECK (id = 1), "
+        "contract TEXT NOT NULL)",
+        "INSERT INTO embedding_state (id, contract) VALUES (1, '"
+        + json.dumps(E5_CONTRACT, sort_keys=True)
+        + "')",
+    ),
 }
 
 BASE_SCHEMA = (
@@ -108,6 +119,14 @@ async def initialize_database(connection: aiosqlite.Connection) -> None:
                     columns = {row[1] for row in await cursor.fetchall()}
                 if "answer_embedding" not in columns:
                     raise RuntimeError("SQLite schema is missing answer_embedding")
+            if version >= 3:
+                async with connection.execute(
+                    "SELECT contract FROM embedding_state WHERE id = 1"
+                ) as cursor:
+                    if await cursor.fetchone() is None:
+                        raise RuntimeError(
+                            "SQLite schema is missing embedding contract"
+                        )
         for target in range(version + 1, SCHEMA_VERSION + 1):
             statements = MIGRATIONS.get(target)
             if not statements:
