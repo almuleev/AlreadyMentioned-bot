@@ -13,6 +13,7 @@ from aiogram.types import (
 )
 
 from already_mentioned.bot.permissions import is_chat_admin
+from already_mentioned.config import DEFAULT_SIMILARITY_THRESHOLD
 from already_mentioned.error_logging import log_operation_error
 from already_mentioned.handlers.solve import SOLVE_USAGE
 from already_mentioned.repositories.chats import ChatRepository
@@ -54,7 +55,8 @@ async def help_command(message: Message) -> None:
         "/editquestion ID новый текст — reply на исходный ответ, исправить вопрос.\n"
         "/editanswer ID новый текст — reply на исходный ответ, исправить ответ.\n"
         "ID и ссылку на исходный ответ возьмите из /solutions.\n"
-        "/threshold 0.88 — изменить порог (администратор).\n"
+        f"/threshold {DEFAULT_SIMILARITY_THRESHOLD:.3f} — изменить порог "
+        "(администратор).\n"
         "/forget — удалить решения и оценки после подтверждения (администратор)."
     )
 
@@ -203,7 +205,7 @@ async def status_command(
     count = await solutions.count_for_chat(message.chat.id)
     await message.answer(
         f"Сохранённых решений: {count}. "
-        f"Порог совпадения: {chat.similarity_threshold:.2f}."
+        f"Порог совпадения: {chat.similarity_threshold:.3f}."
     )
 
 
@@ -213,18 +215,23 @@ async def threshold_command(message: Message, bot: Bot, chats: ChatRepository) -
         return
     parts = (message.text or "").split(maxsplit=1)
     if len(parts) != 2:
-        await message.answer("Укажите порог от 0 до 1: /threshold 0.88")
+        await message.answer(
+            f"Укажите порог от 0 до 1: /threshold {DEFAULT_SIMILARITY_THRESHOLD:.3f}"
+        )
         return
     try:
         value = float(parts[1].replace(",", "."))
         if not 0 <= value <= 1:
             raise ValueError
     except ValueError:
-        await message.answer("Порог должен быть числом от 0 до 1, например 0.88.")
+        await message.answer(
+            "Порог должен быть числом от 0 до 1, "
+            f"например {DEFAULT_SIMILARITY_THRESHOLD:.3f}."
+        )
         return
     await chats.ensure_chat(message.chat.id, message.chat.title or "")
     await chats.set_threshold(message.chat.id, value)
-    await message.answer(f"Порог совпадения этого чата: {value:.2f}.")
+    await message.answer(f"Порог совпадения этого чата: {value:.3f}.")
 
 
 @router.message(Command("forget"))

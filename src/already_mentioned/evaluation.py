@@ -8,6 +8,7 @@ from time import perf_counter
 
 import numpy as np
 
+from already_mentioned.config import DEFAULT_SIMILARITY_THRESHOLD
 from already_mentioned.evaluation_cases import CASES, Case
 from already_mentioned.services.embeddings import (
     EmbeddingService,
@@ -183,7 +184,10 @@ def main() -> None:
         description="Офлайн-проверка фильтра и поиска на вымышленных примерах"
     )
     parser.add_argument(
-        "--thresholds", nargs="+", type=float, default=[0.84, 0.88, 0.92]
+        "--thresholds",
+        nargs="+",
+        type=float,
+        default=[DEFAULT_SIMILARITY_THRESHOLD, 0.88],
     )
     parser.add_argument("--sizes", nargs="+", type=int, default=[10, 100, 1000])
     parser.add_argument("--repeats", type=int, default=3)

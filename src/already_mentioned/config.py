@@ -7,6 +7,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 DEFAULT_DATABASE_PATH = Path("data/already_mentioned.db")
+# Provisional FRIDA calibration; explicit per-chat settings remain authoritative.
+DEFAULT_SIMILARITY_THRESHOLD = 0.458
 
 
 @dataclass(frozen=True, slots=True)

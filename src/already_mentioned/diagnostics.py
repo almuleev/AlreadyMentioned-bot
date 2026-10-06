@@ -89,7 +89,7 @@ async def inspect_question(
     print(f"Чат: {chat_id}")
     print(f"Лучшее совпадение: {score:.4f}")
     print(f"Совпало с: {source}")
-    print(f"Порог чата: {chat.similarity_threshold:.2f}")
+    print(f"Порог чата: {chat.similarity_threshold:.3f}")
     if not is_question_candidate(question):
         print("Результат: бот промолчал бы — сообщение не прошло фильтр вопросов.")
     elif score >= chat.similarity_threshold:

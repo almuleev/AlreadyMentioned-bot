@@ -5,6 +5,7 @@ import aiosqlite
 import pytest
 import pytest_asyncio
 
+from already_mentioned.config import DEFAULT_SIMILARITY_THRESHOLD
 from already_mentioned.database.connection import connect_database
 from already_mentioned.database.schema import initialize_database
 from already_mentioned.repositories.chats import ChatRepository
@@ -29,7 +30,9 @@ async def test_chat_settings_and_parent_directory(
     assert (tmp_path / "nested" / "bot.db").is_file()
     chats = ChatRepository(database)
     await chats.ensure_chat(-1001, "Первый чат")
-    assert (await chats.get_chat(-1001)).similarity_threshold == pytest.approx(0.88)
+    assert (await chats.get_chat(-1001)).similarity_threshold == pytest.approx(
+        DEFAULT_SIMILARITY_THRESHOLD
+    )
 
     assert await chats.set_threshold(-1001, 0.91)
     await chats.ensure_chat(-1001, "Новое название")

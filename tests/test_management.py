@@ -103,7 +103,7 @@ async def test_status_and_admin_threshold(
     status = make_message("/status")
     await status_command(status, chats, solutions)
     assert "решений: 1" in status.answer.await_args.args[0]
-    assert "0.88" in status.answer.await_args.args[0]
+    assert "0.458" in status.answer.await_args.args[0]
 
     member_bot = SimpleNamespace(
         get_chat_member=AsyncMock(
@@ -112,7 +112,7 @@ async def test_status_and_admin_threshold(
     )
     command = make_message("/threshold 0,92")
     await threshold_command(command, member_bot, chats)
-    assert (await chats.get_chat(-1001)).similarity_threshold == 0.88
+    assert (await chats.get_chat(-1001)).similarity_threshold == 0.458
     await threshold_command(command, admin_bot(), chats)
     assert (await chats.get_chat(-1001)).similarity_threshold == 0.92
 

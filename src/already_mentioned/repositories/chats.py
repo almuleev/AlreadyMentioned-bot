@@ -2,6 +2,7 @@
 
 import aiosqlite
 
+from already_mentioned.config import DEFAULT_SIMILARITY_THRESHOLD
 from already_mentioned.models.entities import Chat
 
 
@@ -13,10 +14,11 @@ class ChatRepository:
         """Create the chat or refresh its title without changing its threshold."""
         await self.connection.execute(
             """
-            INSERT INTO chats (telegram_chat_id, title) VALUES (?, ?)
+            INSERT INTO chats (telegram_chat_id, title, similarity_threshold)
+            VALUES (?, ?, ?)
             ON CONFLICT(telegram_chat_id) DO UPDATE SET title = excluded.title
             """,
-            (telegram_chat_id, title),
+            (telegram_chat_id, title, DEFAULT_SIMILARITY_THRESHOLD),
         )
         await self.connection.commit()
 
