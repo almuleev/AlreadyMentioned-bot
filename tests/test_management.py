@@ -1,4 +1,5 @@
 from collections.abc import AsyncIterator
+from datetime import UTC, datetime
 from pathlib import Path
 from time import monotonic
 from types import SimpleNamespace
@@ -62,7 +63,9 @@ def make_callback(
     return SimpleNamespace(
         data=data,
         message=SimpleNamespace(
-            chat=SimpleNamespace(id=chat_id, type=ChatType.SUPERGROUP)
+            chat=SimpleNamespace(id=chat_id, type=ChatType.SUPERGROUP),
+            message_id=100,
+            date=datetime.now(UTC),
         ),
         from_user=SimpleNamespace(id=user_id),
         answer=AsyncMock(),
@@ -179,14 +182,16 @@ async def test_feedback_once_per_user_and_no_cross_chat_vote(
     await chats.ensure_chat(-1001, "Первый")
     await chats.ensure_chat(-1002, "Второй")
     solution_id = await add_solution(solutions, -1001)
-    callback = make_callback(f"vote:{solution_id}:50:helpful")
-    await record_feedback(callback, solutions, feedback)
-    await record_feedback(callback, solutions, feedback)
+    cleanup = SimpleNamespace(remove=AsyncMock())
+    await feedback.schedule_keyboard(-1001, 100, float("inf"), author_id=10)
+    callback = make_callback(f"vote:{solution_id}:50:10:helpful")
+    await record_feedback(callback, solutions, feedback, cleanup)
+    await record_feedback(callback, solutions, feedback, cleanup)
     assert len(await feedback.list_for_chat(-1001)) == 1
     assert "уже оценили" in callback.answer.await_args.args[0]
 
-    cross_chat = make_callback(f"vote:{solution_id}:50:helpful", chat_id=-1002)
-    await record_feedback(cross_chat, solutions, feedback)
+    cross_chat = make_callback(f"vote:{solution_id}:50:10:helpful", chat_id=-1002)
+    await record_feedback(cross_chat, solutions, feedback, cleanup)
     assert await feedback.list_for_chat(-1002) == []
 
 

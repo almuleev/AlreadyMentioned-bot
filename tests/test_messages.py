@@ -24,7 +24,7 @@ def make_message(text: str, *, message_id: int = 50) -> SimpleNamespace:
 
 
 @pytest.mark.asyncio
-async def test_strong_question_gets_inline_quoted_reply_and_source_button() -> None:
+async def test_strong_question_gets_compact_buttons_source_link_and_cleanup() -> None:
     solution = Solution(
         id=7,
         chat_id=-1001,
@@ -40,9 +40,11 @@ async def test_strong_question_gets_inline_quoted_reply_and_source_button() -> N
         find_best=AsyncMock(return_value=SearchMatch(solution, 0.95))
     )
     message = make_message("Где найти вход в личный кабинет?")
+    cleanup = SimpleNamespace(schedule=AsyncMock())
     await handle_text(
-        message, SimpleNamespace(), ReplyCache(), search, None, None, None
+        message, SimpleNamespace(), ReplyCache(), search, None, None, None, cleanup
     )
+    cleanup.schedule.assert_awaited_once_with(message.reply.return_value, 123)
 
     search.find_best.assert_awaited_once_with(-1001, message.text)
     message.answer.assert_not_awaited()
@@ -52,13 +54,14 @@ async def test_strong_question_gets_inline_quoted_reply_and_source_button() -> N
     assert message.reply.await_args.kwargs["parse_mode"] == ParseMode.HTML
     rows = message.reply.await_args.kwargs["reply_markup"].inline_keyboard
     buttons = rows[0]
-    assert [button.text for button in buttons] == ["👍 Помогло", "👎 Не подходит"]
+    assert [button.text for button in buttons] == ["👍", "👎"]
     assert [button.callback_data for button in buttons] == [
-        "vote:7:50:helpful",
-        "vote:7:50:not_helpful",
+        "vote:7:50:123:helpful",
+        "vote:7:50:123:not_helpful",
     ]
-    assert rows[1][0].text == "📎 Оригинал"
-    assert rows[1][0].url == "https://t.me/c/1/2"
+    assert len(rows) == 1
+    assert '<a href="https://t.me/c/1/2">📎 Оригинал</a>' in text
+    assert message.reply.await_args.kwargs["link_preview_options"].is_disabled
 
 
 def test_answer_preview_escapes_html_and_truncates_long_text() -> None:
@@ -73,14 +76,30 @@ async def test_ordinary_text_and_weak_question_are_silent() -> None:
     search = SimpleNamespace(find_best=AsyncMock(return_value=None))
     ordinary = make_message("Спасибо за помощь")
     await handle_text(
-        ordinary, SimpleNamespace(), ReplyCache(), search, None, None, None
+        ordinary,
+        SimpleNamespace(),
+        ReplyCache(),
+        search,
+        None,
+        None,
+        None,
+        SimpleNamespace(schedule=AsyncMock()),
     )
     search.find_best.assert_not_awaited()
     ordinary.answer.assert_not_awaited()
     ordinary.reply.assert_not_awaited()
 
     weak = make_message("Где оплатить подписку?")
-    await handle_text(weak, SimpleNamespace(), ReplyCache(), search, None, None, None)
+    await handle_text(
+        weak,
+        SimpleNamespace(),
+        ReplyCache(),
+        search,
+        None,
+        None,
+        None,
+        SimpleNamespace(schedule=AsyncMock()),
+    )
     search.find_best.assert_awaited_once()
     weak.answer.assert_not_awaited()
     weak.reply.assert_not_awaited()
@@ -109,7 +128,16 @@ async def test_admin_reply_is_saved_without_a_bot_message() -> None:
     )
     search = SimpleNamespace(find_best=AsyncMock())
 
-    await handle_text(answer, bot, ReplyCache(), search, chats, solutions, embeddings)
+    await handle_text(
+        answer,
+        bot,
+        ReplyCache(),
+        search,
+        chats,
+        solutions,
+        embeddings,
+        SimpleNamespace(schedule=AsyncMock()),
+    )
 
     solutions.add_solution.assert_awaited_once()
     assert solutions.add_solution.await_args.kwargs["question_text"] == question.text
@@ -125,7 +153,14 @@ async def test_search_and_send_errors_log_only_safe_context(caplog) -> None:
     message = make_message("Как войти в кабинет? " + secret)
     search = SimpleNamespace(find_best=AsyncMock(side_effect=RuntimeError(secret)))
     await handle_text(
-        message, SimpleNamespace(), ReplyCache(), search, None, None, None
+        message,
+        SimpleNamespace(),
+        ReplyCache(),
+        search,
+        None,
+        None,
+        None,
+        SimpleNamespace(schedule=AsyncMock()),
     )
     message.reply.assert_not_awaited()
     assert "operation=search chat_id=-1001 message_id=50" in caplog.text
@@ -144,7 +179,14 @@ async def test_search_and_send_errors_log_only_safe_context(caplog) -> None:
     search.find_best = AsyncMock(return_value=SearchMatch(solution, 0.95))
     message.reply.side_effect = RuntimeError(secret)
     await handle_text(
-        message, SimpleNamespace(), ReplyCache(), search, None, None, None
+        message,
+        SimpleNamespace(),
+        ReplyCache(),
+        search,
+        None,
+        None,
+        None,
+        SimpleNamespace(schedule=AsyncMock()),
     )
     assert "operation=send_answer chat_id=-1001 message_id=50" in caplog.text
     assert "error_type=RuntimeError" in caplog.text

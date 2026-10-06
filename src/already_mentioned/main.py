@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+from contextlib import suppress
 
 from aiogram import Dispatcher
 
@@ -21,6 +22,7 @@ from already_mentioned.repositories.feedback import FeedbackRepository
 from already_mentioned.repositories.solutions import SolutionRepository
 from already_mentioned.services.confirmations import ForgetConfirmations
 from already_mentioned.services.embeddings import FridaEmbeddingService
+from already_mentioned.services.feedback_cleanup import FeedbackCleanup
 from already_mentioned.services.reply_cache import ReplyCache
 from already_mentioned.services.search import SearchService
 
@@ -40,6 +42,7 @@ async def _run(settings: Settings) -> None:
     dispatcher.include_router(messages_router)
     dispatcher.include_router(feedback_router)
     database = None
+    cleanup_task = None
     try:
         database = await connect_database(settings.database_path)
         await initialize_database(database)
@@ -49,6 +52,9 @@ async def _run(settings: Settings) -> None:
         embeddings = FridaEmbeddingService()
         # Fail before polling if the pinned cache cannot be loaded.
         await embeddings.embed_query("Проверка загрузки")
+        feedback = FeedbackRepository(database)
+        feedback_cleanup = FeedbackCleanup(bot, feedback)
+        cleanup_task = asyncio.create_task(feedback_cleanup.run())
         await dispatcher.start_polling(
             bot,
             close_bot_session=False,
@@ -56,11 +62,16 @@ async def _run(settings: Settings) -> None:
             confirmations=ForgetConfirmations(),
             chats=chats,
             solutions=solutions,
-            feedback=FeedbackRepository(database),
+            feedback=feedback,
+            feedback_cleanup=feedback_cleanup,
             embeddings=embeddings,
             search=SearchService(embeddings, chats, solutions),
         )
     finally:
+        if cleanup_task is not None:
+            cleanup_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await cleanup_task
         if database is not None:
             await database.close()
         await bot.session.close()

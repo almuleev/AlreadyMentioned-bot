@@ -4,7 +4,12 @@ from html import escape
 
 from aiogram import Bot, F, Router
 from aiogram.enums import ChatType, ParseMode
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
+from aiogram.types import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    LinkPreviewOptions,
+    Message,
+)
 
 from already_mentioned.error_logging import log_operation_error
 from already_mentioned.handlers.solve import (
@@ -14,6 +19,7 @@ from already_mentioned.handlers.solve import (
 from already_mentioned.repositories.chats import ChatRepository
 from already_mentioned.repositories.solutions import SolutionRepository
 from already_mentioned.services.embeddings import EmbeddingService
+from already_mentioned.services.feedback_cleanup import FeedbackCleanup
 from already_mentioned.services.questions import is_question_candidate
 from already_mentioned.services.reply_cache import ReplyCache
 from already_mentioned.services.search import SearchService
@@ -41,6 +47,7 @@ async def handle_text(
     chats: ChatRepository,
     solutions: SolutionRepository,
     embeddings: EmbeddingService,
+    feedback_cleanup: FeedbackCleanup,
 ) -> None:
     if message.chat.type not in {ChatType.GROUP, ChatType.SUPERGROUP}:
         return
@@ -63,26 +70,38 @@ async def handle_text(
         return
     if match is None:
         return
-    callback_prefix = f"vote:{match.solution.id}:{message.message_id}"
+    callback_prefix = (
+        f"vote:{match.solution.id}:{message.message_id}:{message.from_user.id}"
+    )
     keyboard = InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="👍 Помогло", callback_data=f"{callback_prefix}:helpful"
+                    text="👍", callback_data=f"{callback_prefix}:helpful"
                 ),
                 InlineKeyboardButton(
-                    text="👎 Не подходит",
+                    text="👎",
                     callback_data=f"{callback_prefix}:not_helpful",
                 ),
             ],
-            [InlineKeyboardButton(text="📎 Оригинал", url=match.solution.answer_link)],
         ]
     )
     try:
-        await message.reply(
-            format_answer_preview(match.solution.answer_text),
+        sent = await message.reply(
+            format_answer_preview(match.solution.answer_text)
+            + f'\n<a href="{escape(match.solution.answer_link, quote=True)}">'
+            + "📎 Оригинал</a>",
             parse_mode=ParseMode.HTML,
             reply_markup=keyboard,
+            link_preview_options=LinkPreviewOptions(is_disabled=True),
         )
     except Exception as error:
         log_operation_error("send_answer", message.chat.id, message.message_id, error)
+        return
+    try:
+        await feedback_cleanup.schedule(sent, message.from_user.id)
+    except Exception as error:
+        log_operation_error(
+            "schedule_feedback_cleanup", message.chat.id, sent.message_id, error
+        )
+        await feedback_cleanup.remove(message.chat.id, sent.message_id)

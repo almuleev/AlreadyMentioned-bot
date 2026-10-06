@@ -57,6 +57,7 @@ async def old_database(path):
         "INSERT INTO feedback (solution_id, query_message_id, user_id, vote) "
         "VALUES (1, 3, 4, 'helpful')"
     )
+    await connection.execute("DROP TABLE feedback_keyboards")
     await connection.execute("DROP TABLE embedding_state")
     await connection.execute("PRAGMA user_version = 2")
     await connection.commit()

@@ -6,7 +6,7 @@ import aiosqlite
 
 from already_mentioned.services.embeddings import E5_CONTRACT
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 
 # Add consecutive target versions here when an existing table must change.
 # Each tuple runs inside the same transaction as its user_version update.
@@ -18,6 +18,12 @@ MIGRATIONS: dict[int, tuple[str, ...]] = {
         "INSERT INTO embedding_state (id, contract) VALUES (1, '"
         + json.dumps(E5_CONTRACT, sort_keys=True)
         + "')",
+    ),
+    4: (
+        "CREATE TABLE feedback_keyboards (chat_id INTEGER NOT NULL, "
+        "message_id INTEGER NOT NULL, expires_at REAL NOT NULL, author_id INTEGER, "
+        "PRIMARY KEY (chat_id, message_id))",
+        "CREATE INDEX idx_feedback_keyboards_expiry ON feedback_keyboards(expires_at)",
     ),
 }
 
@@ -127,6 +133,12 @@ async def initialize_database(connection: aiosqlite.Connection) -> None:
                         raise RuntimeError(
                             "SQLite schema is missing embedding contract"
                         )
+            if version >= 4:
+                async with connection.execute(
+                    "SELECT chat_id, message_id, expires_at, author_id "
+                    "FROM feedback_keyboards LIMIT 0"
+                ):
+                    pass
         for target in range(version + 1, SCHEMA_VERSION + 1):
             statements = MIGRATIONS.get(target)
             if not statements:
