@@ -1,0 +1,79 @@
+{
+  "date": "2026-10-06",
+  "review_type": "assistant_repeat_source_review_not_independent_owner",
+  "selection": "all_36_union_positives_and_union_FP32_INT8_false_prompts_both_scenarios_all_splits",
+  "reviewed_cases": 95,
+  "unchanged_cases": 83,
+  "changed_cases": 12,
+  "owner_queue_cases": 95,
+  "priority_owner_cases": 12,
+  "reviewed_by_chat": {
+    "chat1": 42,
+    "chat2": 2,
+    "chat3": 35,
+    "chat4": 15,
+    "chat5": 1
+  },
+  "context_records_available": 822,
+  "bank_texts_and_roles_unchanged": true,
+  "model_inference_performed": false,
+  "new_model_metrics_claimed": false,
+  "independent_owner_review_completed": false,
+  "previous_unknown_cases_preserved_separately": 34,
+  "scenarios": [
+    {
+      "name": "main",
+      "cases": 3216,
+      "solutions": 127,
+      "silence": 3185,
+      "positive": 23,
+      "unresolved": 8
+    },
+    {
+      "name": "proxy",
+      "cases": 3216,
+      "solutions": 136,
+      "silence": 3181,
+      "positive": 27,
+      "unresolved": 8
+    }
+  ],
+  "inputs": {
+    "main/reviewed_cases_full.csv": "bdf51089e5db2a5c9c662b1ae94fc6870087306925449ed9b59dab29e52fd8a6",
+    "main/chat1_inferred_solution_bank.csv": "fb77fbc08b0ae4b5a2b6480bdf6cf4063e6f64b46077dbda6c60d6d95c93b291",
+    "main/chat2_inferred_solution_bank.csv": "66ba206e0e7052af347289396300ea781196af1b1aa89353f935d44ce5163e02",
+    "main/chat3_inferred_solution_bank.csv": "112eaa9dee0436ca9e7493c0d28c29cf6d3508f875085d86e235edc48c929c5a",
+    "main/chat4_inferred_solution_bank.csv": "b1e83a0e200415d6865869b2bd009711b3f11288afe0bda3a5aa2466425774d0",
+    "main/chat5_inferred_solution_bank.csv": "816737d0ad06f29a5284774b29ddcff38a02a60d1ab1f0eb24aad0849d8d4754",
+    "proxy/reviewed_cases_full.csv": "561afbb0b59e079fba40db83a8cdaf7cd3f3b94ff563a43422eea35d3509eb4d",
+    "proxy/chat1_inferred_solution_bank.csv": "fb77fbc08b0ae4b5a2b6480bdf6cf4063e6f64b46077dbda6c60d6d95c93b291",
+    "proxy/chat2_inferred_solution_bank.csv": "5920281c6cc1ac21ac72f37bda5fc085e70f64deaa46dcb5039b0e768bae7437",
+    "proxy/chat3_inferred_solution_bank.csv": "3100720d10ea0574b94bd7f475a2c681a3395795f3bfdaff6ad6c3de9021aab2",
+    "proxy/chat4_inferred_solution_bank.csv": "b1e83a0e200415d6865869b2bd009711b3f11288afe0bda3a5aa2466425774d0",
+    "proxy/chat5_inferred_solution_bank.csv": "816737d0ad06f29a5284774b29ddcff38a02a60d1ab1f0eb24aad0849d8d4754",
+    "source_messages": "02624676bd179cdf326cd3fc594fba74611c252b22595dad293aeb26c1b85781",
+    "review_material": "806c04fb1237995e18e460ebd9eb3a93e5c915a515c5455bed63a88c09a7b106",
+    "decisions": "a50ccdb41e1c4b313e8f675640acf9bbc1f4f0008416d6e4d0662f9113fa9919",
+    "selection_report/frida": "6a91894a1a6dfa290a5ed28574a7dc103f017cb10d1120fd1fce114b7a8b6634",
+    "selection_report/frida-int8": "b57e5061983ee95ee256ee903ecf90d7410c72c8380fd4de6d91da2d15838ec5"
+  },
+  "outputs": {
+    "chat1_inferred_solution_bank.csv": "fb77fbc08b0ae4b5a2b6480bdf6cf4063e6f64b46077dbda6c60d6d95c93b291",
+    "chat2_inferred_solution_bank.csv": "66ba206e0e7052af347289396300ea781196af1b1aa89353f935d44ce5163e02",
+    "chat3_inferred_solution_bank.csv": "112eaa9dee0436ca9e7493c0d28c29cf6d3508f875085d86e235edc48c929c5a",
+    "chat4_inferred_solution_bank.csv": "b1e83a0e200415d6865869b2bd009711b3f11288afe0bda3a5aa2466425774d0",
+    "chat5_inferred_solution_bank.csv": "816737d0ad06f29a5284774b29ddcff38a02a60d1ab1f0eb24aad0849d8d4754",
+    "reviewed_cases_full.csv": "0549d78a3adafd5d7f0fb774e154d3c9d53534ab3af396b5786c4585f574133c",
+    "with_inferred/chat1_inferred_solution_bank.csv": "fb77fbc08b0ae4b5a2b6480bdf6cf4063e6f64b46077dbda6c60d6d95c93b291",
+    "with_inferred/chat2_inferred_solution_bank.csv": "5920281c6cc1ac21ac72f37bda5fc085e70f64deaa46dcb5039b0e768bae7437",
+    "with_inferred/chat3_inferred_solution_bank.csv": "3100720d10ea0574b94bd7f475a2c681a3395795f3bfdaff6ad6c3de9021aab2",
+    "with_inferred/chat4_inferred_solution_bank.csv": "b1e83a0e200415d6865869b2bd009711b3f11288afe0bda3a5aa2466425774d0",
+    "with_inferred/chat5_inferred_solution_bank.csv": "816737d0ad06f29a5284774b29ddcff38a02a60d1ab1f0eb24aad0849d8d4754",
+    "with_inferred/reviewed_cases_full.csv": "10518732e559650583ce0fdbdcc2e6b759ad3a8338b78bd59e9d5256d5e088ce",
+    "audit.csv": "d774f76a6dcf52747789ced089d8631a44db5862c05e730863711408b64512a7",
+    "owner_review.csv": "1c172a67e71bf2a73ac0b56441b4eaa622b2badef2111a47788591e8ebca5852",
+    "changes.csv": "366c6d9e920c840d31204701f82fa1f4529d452cae632923e80279f269fb5e2a",
+    "decisions.json": "a50ccdb41e1c4b313e8f675640acf9bbc1f4f0008416d6e4d0662f9113fa9919",
+    "review_queue_final_v2_unchanged.csv": "8e999b87fdb9e4c715cf40320f044c801d71f37efab63fcc22fa25293e00f67d"
+  }
+}
