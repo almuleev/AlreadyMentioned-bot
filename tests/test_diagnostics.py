@@ -60,4 +60,6 @@ async def test_inspect_question_reports_score_without_changing_database(
     assert "Порог чата: 0.90" in output
     assert "бот промолчал бы из-за порога" in output
     assert "https://t.me/c/1/2" in output
+    assert "Кандидаты FRIDA до порога: 1" in output
+    assert "вопрос=0.8800; ответ=0.4750" in output
     assert database_path.read_bytes() == original_bytes

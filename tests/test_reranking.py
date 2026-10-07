@@ -5,7 +5,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from already_mentioned.services.reranking import OnnxReranker
+from already_mentioned.services.reranking import GteOnnxReranker, OnnxReranker
 
 
 def test_onnx_pair_batching_masks_and_monotonic_scores():
@@ -75,3 +75,36 @@ def test_empty_input_does_not_load_model():
 def test_limits_rejected_before_model_load(settings):
     with pytest.raises(ValueError):
         OnnxReranker(**settings)
+
+
+@pytest.mark.parametrize("scorer_class", [OnnxReranker, GteOnnxReranker])
+def test_model_loading_uses_own_pinned_identity_and_cache_policy(
+    monkeypatch, scorer_class
+):
+    import huggingface_hub
+    import onnxruntime
+    import tokenizers
+
+    downloads = []
+    tokenizer = SimpleNamespace(
+        token_to_id=lambda _: 1, enable_truncation=lambda **_: None,
+        enable_padding=lambda **_: None,
+    )
+
+    def download(model, filename, **kwargs):
+        downloads.append((model, filename, kwargs))
+        return filename
+
+    monkeypatch.setattr(huggingface_hub, "hf_hub_download", download)
+    monkeypatch.setattr(tokenizers.Tokenizer, "from_file", lambda _: tokenizer)
+    sessions = []
+    monkeypatch.setattr(onnxruntime, "InferenceSession",
+                        lambda path, **kwargs: sessions.append((path, kwargs)))
+    scorer = scorer_class(local_only=True, batch_size=1)
+    scorer._load()
+    assert [name for _, name, _ in downloads] == ["tokenizer.json", scorer.file]
+    assert all(model == scorer.model and kwargs["revision"] == scorer.revision
+               and kwargs["local_files_only"] and kwargs["token"] is False
+               for model, _, kwargs in downloads)
+    assert sessions[0][0] == scorer.file
+    assert sessions[0][1]["providers"] == ["CPUExecutionProvider"]

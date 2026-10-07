@@ -5,6 +5,8 @@ services:
       - .env
     environment:
       DATABASE_PATH: /app/data/already_mentioned.db
+      SEARCH_MODE: ${SEARCH_MODE:-hybrid}
+      HF_HUB_OFFLINE: "1"
     volumes:
       - bot_data:/app/data
       - model_cache:/app/models

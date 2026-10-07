@@ -24,6 +24,7 @@ from already_mentioned.services.confirmations import ForgetConfirmations
 from already_mentioned.services.embeddings import FridaEmbeddingService
 from already_mentioned.services.feedback_cleanup import FeedbackCleanup
 from already_mentioned.services.reply_cache import ReplyCache
+from already_mentioned.services.reranking import OnnxReranker
 from already_mentioned.services.search import SearchService
 
 
@@ -52,6 +53,18 @@ async def _run(settings: Settings) -> None:
         embeddings = FridaEmbeddingService()
         # Fail before polling if the pinned cache cannot be loaded.
         await embeddings.embed_query("Проверка загрузки")
+        reranker = None
+        if settings.search_mode == "hybrid":
+            reranker = OnnxReranker(local_only=True, batch_size=1)
+            await asyncio.to_thread(
+                reranker.predict,
+                "Проверка загрузки",
+                ["Вопрос: Проверка\nОтвет: Проверка"],
+            )
+        search = SearchService(
+            embeddings, chats, solutions, mode=settings.search_mode, reranker=reranker
+        )
+        logging.info("Search ready: %s; MiniLM batch_size=1", search.mode_label)
         feedback = FeedbackRepository(database)
         feedback_cleanup = FeedbackCleanup(bot, feedback)
         cleanup_task = asyncio.create_task(feedback_cleanup.run())
@@ -65,7 +78,7 @@ async def _run(settings: Settings) -> None:
             feedback=feedback,
             feedback_cleanup=feedback_cleanup,
             embeddings=embeddings,
-            search=SearchService(embeddings, chats, solutions),
+            search=search,
         )
     finally:
         if cleanup_task is not None:

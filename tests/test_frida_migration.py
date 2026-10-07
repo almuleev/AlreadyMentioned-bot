@@ -59,6 +59,7 @@ async def old_database(path):
     )
     await connection.execute("DROP TABLE feedback_keyboards")
     await connection.execute("DROP TABLE embedding_state")
+    await connection.execute("ALTER TABLE chats DROP COLUMN hybrid_threshold")
     await connection.execute("PRAGMA user_version = 2")
     await connection.commit()
     await connection.close()
@@ -243,7 +244,7 @@ async def test_polling_warms_frida_and_legacy_database_fails_before_model(
     )
     monkeypatch.setattr(main, "Dispatcher", Dispatcher)
     monkeypatch.setattr(main, "FridaEmbeddingService", Encoder)
-    await main._run(Settings(None, tmp_path / "new.db"))
+    await main._run(Settings(None, tmp_path / "new.db", search_mode="baseline"))
     assert events == ["warm", "polling", "close"]
     events.clear()
     await old_database(tmp_path / "legacy.db")

@@ -121,6 +121,23 @@ async def test_status_and_admin_threshold(
 
 
 @pytest.mark.asyncio
+async def test_hybrid_commands_use_separate_chat_threshold(repositories):
+    from already_mentioned.services.search import SearchService
+
+    chats, solutions, _ = repositories
+    await chats.ensure_chat(-1001, "Тест")
+    await chats.set_threshold(-1001, .91)
+    search = SearchService(None, chats, solutions, mode="hybrid", reranker=object())
+    await threshold_command(make_message("/threshold 0.42"), admin_bot(), chats, search)
+    status = make_message("/status")
+    await status_command(status, chats, solutions, search)
+    assert "FRIDA + MiniLM" in status.answer.await_args.args[0]
+    assert "0.420" in status.answer.await_args.args[0]
+    chat = await chats.get_chat(-1001)
+    assert chat.similarity_threshold == .91 and chat.hybrid_threshold == .42
+
+
+@pytest.mark.asyncio
 async def test_forget_needs_same_admin_confirmation_and_is_chat_scoped(
     repositories: tuple[ChatRepository, SolutionRepository, FeedbackRepository],
 ) -> None:

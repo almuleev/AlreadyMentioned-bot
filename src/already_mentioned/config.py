@@ -9,12 +9,15 @@ from dotenv import load_dotenv
 DEFAULT_DATABASE_PATH = Path("data/already_mentioned.db")
 # Provisional FRIDA calibration; explicit per-chat settings remain authoritative.
 DEFAULT_SIMILARITY_THRESHOLD = 0.458
+# Full or substantive partial answers; main-early F2, single-pair MiniLM.
+DEFAULT_HYBRID_THRESHOLD = 0.371
 
 
 @dataclass(frozen=True, slots=True)
 class Settings:
     telegram_bot_token: str | None
     database_path: Path
+    search_mode: str = "hybrid"
 
     def require_bot_token(self) -> str:
         """Return the token or explain how to configure bot startup."""
@@ -31,4 +34,9 @@ def load_settings(*, env_file: str | Path = ".env") -> Settings:
     load_dotenv(dotenv_path=env_file, override=False)
     token = os.getenv("TELEGRAM_BOT_TOKEN", "").strip() or None
     database_path = Path(os.getenv("DATABASE_PATH") or DEFAULT_DATABASE_PATH)
-    return Settings(telegram_bot_token=token, database_path=database_path)
+    mode = os.getenv("SEARCH_MODE", "hybrid").strip().lower()
+    if mode not in {"baseline", "hybrid"}:
+        raise ValueError("SEARCH_MODE должен быть baseline или hybrid")
+    return Settings(
+        telegram_bot_token=token, database_path=database_path, search_mode=mode
+    )

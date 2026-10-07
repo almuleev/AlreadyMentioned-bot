@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ru"><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>Реакции моделей — AlreadyMentioned</title>
+<style>
+body{font:15px system-ui;background:#f3f5f8;color:#182538;margin:24px}h1{margin-bottom:8px}
+button,select,input{font:inherit;padding:8px;border:1px solid #aebacc;border-radius:6px}
+button{cursor:pointer;background:white}label{display:inline-block;margin:5px 12px 5px 0}
+.box{background:white;padding:16px;border-radius:10px;margin:14px 0}.muted{color:#57667a}
+table{border-collapse:collapse;width:100%}td,th{text-align:left;padding:9px;border-bottom:1px solid #ddd}
+tr[data-key]{cursor:pointer}tr[data-key]:hover{background:#e7efff}.scroll{overflow:auto}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px}
+pre,.text{white-space:pre-wrap;overflow-wrap:anywhere}pre{font:13px system-ui}
+.good{color:#167443}.bad{color:#b62d36}.active{outline:2px solid #4475cf}
+.messages{max-height:380px;overflow:auto}thead{position:sticky;top:0;background:white}
+</style>
+<h1>Как модели реагируют на сообщения</h1>
+<p class="muted">Офлайн-прогоны на предварительной разметке. Модели выбирают сохранённый ответ.
+Тексты соединены с отчётами по проверенным хэшам CSV. Файл содержит переписку: храните его локально.
+Новые сообщения здесь не кодируются; альтернативные кандидаты и отдельные оценки вопроса/ответа в старых отчётах отсутствуют.</p>
+<div class="box"><label>Сценарий <select id="scenario"></select></label><div id="models"></div>
+<label>Поиск по сообщению / ID <input id="search" type="search"></label>
+<label>Чат <select id="chat"><option value="">Все</option></select></label>
+<label>Часть <select id="split"><option value="test">Поздняя — оценка</option><option value="validation">Ранняя — калибровка</option><option value="">Вся история</option></select></label>
+<label>Показать <select id="mode"><option value="all">Все сообщения</option><option value="errors">Ошибки и пропуски</option><option value="disagree">Расхождения моделей</option><option value="positive">Ожидается ответ</option><option value="reply">Есть подсказка</option></select></label>
+<label>Пробный общий порог <input id="threshold" type="number" step="0.01" min="-1" max="1.000001" placeholder="Из отчёта"></label>
+<button id="reset">Вернуть пороги отчётов</button>
+<p class="muted">Пробный порог меняет только просмотр. Шкалы моделей различаются; это не калибровка и не настройка бота.</p></div>
+<div class="box"><button id="export">Сохранить оценки кандидатов</button>
+<button id="importButton">Продолжить проверку</button>
+<input id="import" type="file" accept=".json" hidden>
+<span id="reviewStatus">Оценки хранятся в памяти страницы до сохранения.</span>
+<p class="muted">В карточках можно отметить полноту ответа. Оценки экспортируются отдельно;
+они не меняют метки, показатели или бота. При повторном открытии загрузите сохранённый JSON.</p></div>
+<details id="reviewCopy" class="box" hidden><summary>JSON оценок для сохранения вручную</summary>
+<p>Если браузер не скачал файл, сохраните этот текст в файл с расширением .json.</p>
+<textarea id="reviewOutput" readonly rows="8" style="width:100%" aria-label="JSON оценок"></textarea></details>
+<div class="box scroll"><h2>Показатели на выбранных сообщениях</h2><div id="summary"></div></div>
+<div class="box"><span id="count"></span> <button id="prev">←</button> <button id="next">→</button><div class="messages"><table><thead><tr><th>ID / чат</th><th>Сообщение</th><th>Реакции выбранных моделей</th></tr></thead><tbody id="rows"></tbody></table></div></div>
+<div id="detail" class="box"></div>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+const data=JSON.parse(document.getElementById('data').textContent), $=id=>document.getElementById(id);
+let current,selected=[],page=0,focus=null,visible=[];
+const reviews=new Map(), ratings=['Полный ответ','Полезен частично','Не подходит','Неясно'];
+const node=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n};
+const threshold=m=>$('threshold').value===''?m.threshold:Number($('threshold').value);
+function reaction(m,key){const d=m.details[key],t=threshold(m),chosen=d.filter_passed&&d.best!==null&&d.score>=t?d.best:null;
+const status=chosen!==null?(d.expected.includes(chosen)?'Верный ответ':'Ошибочный ответ'):(d.expected.length?'Пропуск':'Верное молчание');
+const reason=!d.filter_passed?'Отклонено фильтром':d.best===null?'Нет предыдущих решений':d.score<t?'Ниже порога':'Порог пройден';return {d,t,chosen,status,reason};}
+function init(){current=data.scenarios[$('scenario').value];selected=current.models.map((_,i)=>i);page=0;focus=null;
+$('models').replaceChildren();current.models.forEach((m,i)=>{const label=node('label'),cb=node('input');cb.type='checkbox';cb.checked=true;cb.onchange=()=>{selected=[...$('models').querySelectorAll('input')].flatMap((c,i)=>c.checked?[i]:[]);page=0;render()};label.append(cb,document.createTextNode(' '+m.name));$('models').append(label)});
+$('chat').replaceChildren(new Option('Все',''));[...new Set(Object.values(current.cases).map(c=>c.chat))].sort().forEach(c=>$('chat').add(new Option(c,c)));render();}
+function render(){const models=selected.map(i=>current.models[i]),q=$('search').value.toLowerCase();
+visible=Object.entries(current.cases).filter(([key,c])=>{const rs=models.map(m=>reaction(m,key)),d=current.models[0].details[key];
+if(($('chat').value&&c.chat!==$('chat').value)||($('split').value&&d.split!==$('split').value)||!(c.new_message+' '+key).toLowerCase().includes(q))return false;
+switch($('mode').value){case 'errors':return rs.some(r=>['Пропуск','Ошибочный ответ'].includes(r.status));case 'disagree':return new Set(rs.map(r=>r.chosen)).size>1;case 'positive':return d.expected.length>0;case 'reply':return rs.some(r=>r.chosen!==null);default:return true;}});
+const table=node('table'),head=node('tr');['Модель','Порог','Верные','Ошибочные','Пропуски','Precision','Recall','F1'].forEach(s=>head.append(node('th',s)));table.append(head);
+models.forEach(m=>{let tp=0,fp=0,fn=0;visible.forEach(([key])=>{const r=reaction(m,key);tp+=r.status==='Верный ответ';fp+=r.status==='Ошибочный ответ';fn+=r.d.expected.length>0&&r.status!=='Верный ответ'});const row=node('tr');[m.name,threshold(m).toFixed(4),tp,fp,fn,...[tp/(tp+fp||1),tp/(tp+fn||1),2*tp/(2*tp+fp+fn||1)].map(v=>(100*v).toFixed(1)+'%')].forEach(v=>row.append(node('td',v)));table.append(row)});$('summary').replaceChildren(table);
+page=Math.min(page,Math.max(0,Math.ceil(visible.length/100)-1));$('count').textContent=`Сообщений: ${visible.length} · страница ${page+1} из ${Math.max(1,Math.ceil(visible.length/100))}`;
+$('prev').disabled=page===0;$('next').disabled=(page+1)*100>=visible.length;$('rows').replaceChildren();
+visible.slice(page*100,page*100+100).forEach(([key,c])=>{const tr=node('tr');tr.dataset.key=key;if(key===focus)tr.className='active';tr.append(node('td',key),node('td',c.new_message.slice(0,220)),node('td',models.map(m=>m.name+': '+reaction(m,key).status).join('\n'),'text'));tr.onclick=()=>{focus=key;render()};$('rows').append(tr)});
+if(!visible.some(([k])=>k===focus))focus=visible[0]?.[0]??null;showDetail(models);}
+function source(row){const box=node('div');box.append(node('p','Вопрос: '+row.saved_question,'text'),node('p','Ответ: '+row.saved_answer,'text'));const meta=Object.fromEntries(Object.entries(row).filter(([k])=>!['saved_question','saved_answer'].includes(k)));const details=node('details');details.append(node('summary','Источник, даты и авторство'),node('pre',JSON.stringify(meta,null,2)));box.append(details);return box;}
+function showDetail(models){const root=$('detail');root.replaceChildren();if(!focus){root.append(node('p','Нет сообщений для выбранных условий.'));return;}const c=current.cases[focus],base=current.models[0].details[focus];root.append(node('h2','Сообщение '+focus),node('p',c.new_message,'text'),node('p',base.split==='test'?'Поздняя часть':'Ранняя часть'));
+const meta=node('details');meta.append(node('summary','Исходная запись сообщения'),node('pre',JSON.stringify(c,null,2)));root.append(meta,node('h3','Ожидаемая реакция по разметке'));if(!base.expected.length)root.append(node('p','Молчание'));base.expected.forEach(id=>{root.append(node('h4',id),source(current.bank[c.chat][id]))});
+const cards=node('div',undefined,'cards');models.forEach(m=>{const r=reaction(m,focus),card=node('div',undefined,'box'),scoreLabel=m.reranker?'Релевантность (не вероятность)':'Сходство';card.append(node('h3',m.name),node('strong',r.status,['Ошибочный ответ','Пропуск'].includes(r.status)?'bad':'good'),node('p',r.reason),node('p',`${scoreLabel}: ${r.d.best===null?'не рассчитано / нет кандидата':r.d.score.toFixed(6)} · порог: ${r.t.toFixed(6)} · отрыв: ${r.d.gap===null?'нет':r.d.gap.toFixed(6)}`));
+if(r.d.best!==null){card.append(node('h4',(r.chosen!==null?'Предложенный ответ: ':'Лучший кандидат до фильтра и порога: ')+r.d.best),source(current.bank[c.chat][r.d.best]));
+const reviewKey=JSON.stringify([$('scenario').value,focus,m.report_sha256,r.d.best]),saved=reviews.get(reviewKey),label=node('label','Оценка кандидата '),choice=node('select');choice.add(new Option('Не проверен',''));ratings.forEach(t=>choice.add(new Option(t,t)));choice.value=saved?.rating??'';label.append(choice);const comment=node('textarea');comment.placeholder='Почему ответ полный, частичный или неподходящий';comment.value=saved?.comment??'';comment.rows=2;comment.style.width='100%';
+const save=()=>{if(!choice.value)reviews.delete(reviewKey);else reviews.set(reviewKey,{scenario:$('scenario').value,chat:c.chat,message_id:r.d.message_id,report_sha256:m.report_sha256,solution_id:r.d.best,rating:choice.value,comment:comment.value});$('reviewStatus').textContent=`Оценено кандидатов: ${reviews.size}. Сохраните оценки перед закрытием страницы.`};choice.onchange=save;comment.oninput=save;card.append(label,comment);
+}else card.append(node('p','Кандидат в отчёте отсутствует. Для отклонённых отрицательных сообщений модель не запускалась.'));
+if(r.d.candidates?.length){const alternatives=node('details');alternatives.append(node('summary','Пять кандидатов и отдельные оценки'));r.d.candidates.forEach((candidate,i)=>{alternatives.append(node('h4',`${i+1}. ${candidate.id}`),node('pre',JSON.stringify(candidate,null,2)),source(current.bank[c.chat][candidate.id]))});card.append(alternatives);}
+const info=node('details');info.append(node('summary','Модель, время, память и происхождение отчёта'),node('pre',JSON.stringify({contract:m.contract,reranker:m.reranker,timing:m.timing,memory:m.memory,report:m.report,sha256:m.report_sha256},null,2)));card.append(info);cards.append(card)});root.append(cards);}
+Object.keys(data.scenarios).forEach(s=>$('scenario').add(new Option(s,s)));$('scenario').onchange=init;
+['search','chat','split','mode','threshold'].forEach(id=>$(id).oninput=()=>{page=0;render()});$('reset').onclick=()=>{$('threshold').value='';render()};$('prev').onclick=()=>{page--;render()};$('next').onclick=()=>{page++;render()};init();
+$('export').onclick=()=>{const payload=JSON.stringify({format_version:1,kind:'candidate_completeness_review',reviews:[...reviews.values()]},null,2);$('reviewOutput').value=payload;$('reviewCopy').hidden=false;$('reviewCopy').open=true;const blob=new Blob([payload],{type:'application/json'}),url=URL.createObjectURL(blob),a=node('a');a.href=url;a.download='model_candidate_review.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);$('reviewStatus').textContent=`Оценки подготовлены: ${reviews.size}. Сохраните файл или JSON ниже.`};
+$('import').onchange=async()=>{try{const file=$('import').files[0];if(!file)return;const payload=JSON.parse(await file.text());if(payload.format_version!==1||payload.kind!=='candidate_completeness_review'||!Array.isArray(payload.reviews))throw Error('Неверный формат файла');const pending=new Map();for(const row of payload.reviews){const s=data.scenarios[row.scenario],m=s?.models.find(m=>m.report_sha256===row.report_sha256),key=`${row.chat}:${row.message_id}`,d=m?.details[key];if(!d||d.best!==row.solution_id||!ratings.includes(row.rating)||typeof row.comment!=='string')throw Error('Оценки не соответствуют загруженным отчётам');pending.set(JSON.stringify([row.scenario,key,row.report_sha256,row.solution_id]),row);}pending.forEach((v,k)=>reviews.set(k,v));$('reviewStatus').textContent=`Загружено оценок: ${pending.size}.`;render();}catch(error){$('reviewStatus').textContent='Не удалось загрузить: '+error.message;}};
+$('importButton').onclick=()=>{$('import').value='';$('import').click();};
+</script></html>

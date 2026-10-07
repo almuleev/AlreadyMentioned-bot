@@ -1,0 +1,344 @@
+{
+  "date": "2026-10-07",
+  "independent_test": false,
+  "production_changed": false,
+  "filter_experiment_sha256": {
+    "name": "filter_experiment.py",
+    "sha256": "e7262ccae4b65afa9e71177ba487e811f53ec402300b82c2465faa12104c7b1e"
+  },
+  "new_query_encodings": 2,
+  "document_encodings": 95,
+  "new_rerank_pairs": 11,
+  "newly_admitted_cases_per_scenario": {
+    "label_review_v3_20261006": 7,
+    "with_inferred": 7
+  },
+  "reports": [
+    {
+      "report": {
+        "name": "baseline_transport_filter.json",
+        "sha256": "07c0b165403d9976336889c2860872983c618e62346f04e4a06d263ddda5e6bd"
+      },
+      "name": "frida-baseline_transport_filter",
+      "contract": {
+        "model": "ai-forever/FRIDA",
+        "revision": "850455b605544a944739b25f81ddf812b6e3d0d5",
+        "dimension": 1536,
+        "query_prefix": "search_query:",
+        "saved_prefix": "search_document:",
+        "pooling": "CLS",
+        "max_length": 512,
+        "normalization": "L2",
+        "dtype": "float32-le",
+        "precision": "fp32"
+      },
+      "scenarios": [
+        {
+          "name": "label_review_v3_20261006",
+          "inputs": [
+            {
+              "name": "reviewed_cases_full.csv",
+              "sha256": "0549d78a3adafd5d7f0fb774e154d3c9d53534ab3af396b5786c4585f574133c"
+            },
+            {
+              "name": "chat1_inferred_solution_bank.csv",
+              "sha256": "fb77fbc08b0ae4b5a2b6480bdf6cf4063e6f64b46077dbda6c60d6d95c93b291"
+            },
+            {
+              "name": "chat2_inferred_solution_bank.csv",
+              "sha256": "66ba206e0e7052af347289396300ea781196af1b1aa89353f935d44ce5163e02"
+            },
+            {
+              "name": "chat3_inferred_solution_bank.csv",
+              "sha256": "112eaa9dee0436ca9e7493c0d28c29cf6d3508f875085d86e235edc48c929c5a"
+            },
+            {
+              "name": "chat4_inferred_solution_bank.csv",
+              "sha256": "b1e83a0e200415d6865869b2bd009711b3f11288afe0bda3a5aa2466425774d0"
+            },
+            {
+              "name": "chat5_inferred_solution_bank.csv",
+              "sha256": "816737d0ad06f29a5284774b29ddcff38a02a60d1ab1f0eb24aad0849d8d4754"
+            }
+          ],
+          "dataset": {
+            "cases": 3208,
+            "solutions": 127,
+            "excluded": 8
+          },
+          "threshold": 0.458,
+          "validation": {
+            "correct": 7,
+            "wrong": 46,
+            "missed": 9,
+            "correct_silence": 1862,
+            "false_prompt": 46,
+            "wrong_solution": 0,
+            "filter_missed": 0,
+            "wrong_leader": 2,
+            "below_threshold": 7,
+            "margin_missed": 0,
+            "correct_leader_without_filter": 14,
+            "positives": 16,
+            "total": 1924,
+            "precision": 0.1320754716981132,
+            "recall": 0.4375,
+            "f1": 0.2028985507246377
+          },
+          "test": {
+            "correct": 1,
+            "wrong": 10,
+            "missed": 6,
+            "correct_silence": 1267,
+            "false_prompt": 10,
+            "wrong_solution": 0,
+            "filter_missed": 0,
+            "wrong_leader": 1,
+            "below_threshold": 5,
+            "margin_missed": 0,
+            "correct_leader_without_filter": 6,
+            "positives": 7,
+            "total": 1284,
+            "precision": 0.09090909090909091,
+            "recall": 0.14285714285714285,
+            "f1": 0.1111111111111111
+          }
+        },
+        {
+          "name": "with_inferred",
+          "inputs": [
+            {
+              "name": "reviewed_cases_full.csv",
+              "sha256": "10518732e559650583ce0fdbdcc2e6b759ad3a8338b78bd59e9d5256d5e088ce"
+            },
+            {
+              "name": "chat1_inferred_solution_bank.csv",
+              "sha256": "fb77fbc08b0ae4b5a2b6480bdf6cf4063e6f64b46077dbda6c60d6d95c93b291"
+            },
+            {
+              "name": "chat2_inferred_solution_bank.csv",
+              "sha256": "5920281c6cc1ac21ac72f37bda5fc085e70f64deaa46dcb5039b0e768bae7437"
+            },
+            {
+              "name": "chat3_inferred_solution_bank.csv",
+              "sha256": "3100720d10ea0574b94bd7f475a2c681a3395795f3bfdaff6ad6c3de9021aab2"
+            },
+            {
+              "name": "chat4_inferred_solution_bank.csv",
+              "sha256": "b1e83a0e200415d6865869b2bd009711b3f11288afe0bda3a5aa2466425774d0"
+            },
+            {
+              "name": "chat5_inferred_solution_bank.csv",
+              "sha256": "816737d0ad06f29a5284774b29ddcff38a02a60d1ab1f0eb24aad0849d8d4754"
+            }
+          ],
+          "dataset": {
+            "cases": 3208,
+            "solutions": 136,
+            "excluded": 8
+          },
+          "threshold": 0.458,
+          "validation": {
+            "correct": 9,
+            "wrong": 52,
+            "missed": 10,
+            "correct_silence": 1853,
+            "false_prompt": 52,
+            "wrong_solution": 0,
+            "filter_missed": 1,
+            "wrong_leader": 3,
+            "below_threshold": 6,
+            "margin_missed": 0,
+            "correct_leader_without_filter": 16,
+            "positives": 19,
+            "total": 1924,
+            "precision": 0.14754098360655737,
+            "recall": 0.47368421052631576,
+            "f1": 0.225
+          },
+          "test": {
+            "correct": 2,
+            "wrong": 13,
+            "missed": 6,
+            "correct_silence": 1263,
+            "false_prompt": 13,
+            "wrong_solution": 0,
+            "filter_missed": 0,
+            "wrong_leader": 1,
+            "below_threshold": 5,
+            "margin_missed": 0,
+            "correct_leader_without_filter": 7,
+            "positives": 8,
+            "total": 1284,
+            "precision": 0.13333333333333333,
+            "recall": 0.25,
+            "f1": 0.17391304347826086
+          }
+        }
+      ]
+    },
+    {
+      "report": {
+        "name": "hybrid_transport_filter.json",
+        "sha256": "43d0ce2429d6e6a08e4d0395404255a8ae17feffd502de491602b56c9ca32b38"
+      },
+      "name": "frida-hybrid_transport_filter",
+      "contract": {
+        "model": "ai-forever/FRIDA",
+        "revision": "850455b605544a944739b25f81ddf812b6e3d0d5",
+        "dimension": 1536,
+        "query_prefix": "search_query:",
+        "saved_prefix": "search_document:",
+        "pooling": "CLS",
+        "max_length": 512,
+        "normalization": "L2",
+        "dtype": "float32-le",
+        "precision": "fp32"
+      },
+      "scenarios": [
+        {
+          "name": "label_review_v3_20261006",
+          "inputs": [
+            {
+              "name": "reviewed_cases_full.csv",
+              "sha256": "0549d78a3adafd5d7f0fb774e154d3c9d53534ab3af396b5786c4585f574133c"
+            },
+            {
+              "name": "chat1_inferred_solution_bank.csv",
+              "sha256": "fb77fbc08b0ae4b5a2b6480bdf6cf4063e6f64b46077dbda6c60d6d95c93b291"
+            },
+            {
+              "name": "chat2_inferred_solution_bank.csv",
+              "sha256": "66ba206e0e7052af347289396300ea781196af1b1aa89353f935d44ce5163e02"
+            },
+            {
+              "name": "chat3_inferred_solution_bank.csv",
+              "sha256": "112eaa9dee0436ca9e7493c0d28c29cf6d3508f875085d86e235edc48c929c5a"
+            },
+            {
+              "name": "chat4_inferred_solution_bank.csv",
+              "sha256": "b1e83a0e200415d6865869b2bd009711b3f11288afe0bda3a5aa2466425774d0"
+            },
+            {
+              "name": "chat5_inferred_solution_bank.csv",
+              "sha256": "816737d0ad06f29a5284774b29ddcff38a02a60d1ab1f0eb24aad0849d8d4754"
+            }
+          ],
+          "dataset": {
+            "cases": 3208,
+            "solutions": 127,
+            "excluded": 8
+          },
+          "threshold": 0.528,
+          "validation": {
+            "correct": 5,
+            "wrong": 17,
+            "missed": 11,
+            "correct_silence": 1892,
+            "false_prompt": 16,
+            "wrong_solution": 1,
+            "filter_missed": 0,
+            "wrong_leader": 3,
+            "below_threshold": 8,
+            "margin_missed": 0,
+            "correct_leader_without_filter": 13,
+            "positives": 16,
+            "total": 1924,
+            "precision": 0.22727272727272727,
+            "recall": 0.3125,
+            "f1": 0.2631578947368421
+          },
+          "test": {
+            "correct": 2,
+            "wrong": 2,
+            "missed": 5,
+            "correct_silence": 1275,
+            "false_prompt": 2,
+            "wrong_solution": 0,
+            "filter_missed": 0,
+            "wrong_leader": 1,
+            "below_threshold": 4,
+            "margin_missed": 0,
+            "correct_leader_without_filter": 6,
+            "positives": 7,
+            "total": 1284,
+            "precision": 0.5,
+            "recall": 0.2857142857142857,
+            "f1": 0.36363636363636365
+          }
+        },
+        {
+          "name": "with_inferred",
+          "inputs": [
+            {
+              "name": "reviewed_cases_full.csv",
+              "sha256": "10518732e559650583ce0fdbdcc2e6b759ad3a8338b78bd59e9d5256d5e088ce"
+            },
+            {
+              "name": "chat1_inferred_solution_bank.csv",
+              "sha256": "fb77fbc08b0ae4b5a2b6480bdf6cf4063e6f64b46077dbda6c60d6d95c93b291"
+            },
+            {
+              "name": "chat2_inferred_solution_bank.csv",
+              "sha256": "5920281c6cc1ac21ac72f37bda5fc085e70f64deaa46dcb5039b0e768bae7437"
+            },
+            {
+              "name": "chat3_inferred_solution_bank.csv",
+              "sha256": "3100720d10ea0574b94bd7f475a2c681a3395795f3bfdaff6ad6c3de9021aab2"
+            },
+            {
+              "name": "chat4_inferred_solution_bank.csv",
+              "sha256": "b1e83a0e200415d6865869b2bd009711b3f11288afe0bda3a5aa2466425774d0"
+            },
+            {
+              "name": "chat5_inferred_solution_bank.csv",
+              "sha256": "816737d0ad06f29a5284774b29ddcff38a02a60d1ab1f0eb24aad0849d8d4754"
+            }
+          ],
+          "dataset": {
+            "cases": 3208,
+            "solutions": 136,
+            "excluded": 8
+          },
+          "threshold": 0.528,
+          "validation": {
+            "correct": 6,
+            "wrong": 18,
+            "missed": 13,
+            "correct_silence": 1888,
+            "false_prompt": 17,
+            "wrong_solution": 1,
+            "filter_missed": 1,
+            "wrong_leader": 3,
+            "below_threshold": 9,
+            "margin_missed": 0,
+            "correct_leader_without_filter": 16,
+            "positives": 19,
+            "total": 1924,
+            "precision": 0.25,
+            "recall": 0.3157894736842105,
+            "f1": 0.27906976744186046
+          },
+          "test": {
+            "correct": 3,
+            "wrong": 2,
+            "missed": 5,
+            "correct_silence": 1274,
+            "false_prompt": 2,
+            "wrong_solution": 0,
+            "filter_missed": 0,
+            "wrong_leader": 1,
+            "below_threshold": 4,
+            "margin_missed": 0,
+            "correct_leader_without_filter": 7,
+            "positives": 8,
+            "total": 1284,
+            "precision": 0.6,
+            "recall": 0.375,
+            "f1": 0.46153846153846156
+          }
+        }
+      ]
+    }
+  ]
+}

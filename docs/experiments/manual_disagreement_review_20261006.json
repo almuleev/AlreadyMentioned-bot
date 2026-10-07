@@ -1,0 +1,118 @@
+{
+  "format_version": 1,
+  "reviewer": "assistant",
+  "independent_review": false,
+  "label_changes_applied": false,
+  "production_changes_applied": false,
+  "scope": "baseline versus rerank_top5: changed actual reply/abstention in either scenario, both chronological splits",
+  "unique_messages": 70,
+  "unique_splits": {
+    "validation": 55,
+    "test": 15
+  },
+  "report_sha256": {
+    "FRIDA · текущий поиск": "7571d9501ce4d27da728a88246ab3fa33012056983fc222417e351f8f5ed65e6",
+    "FRIDA · повторное ранжирование пяти": "c133f6a23b0040c9d09f1895d47aa3784ecbfa0c80740ce522ff093a5d6f5485"
+  },
+  "source_messages_sha256": "02624676bd179cdf326cd3fc594fba74611c252b22595dad293aeb26c1b85781",
+  "annotations_sha256": "fd63ec87adf5064f899c58930d081ae3471b833baf8f898b4835566d2e2846b8",
+  "inputs": {
+    "label_review_v3_20261006": [
+      [
+        "chat1_inferred_solution_bank.csv",
+        "fb77fbc08b0ae4b5a2b6480bdf6cf4063e6f64b46077dbda6c60d6d95c93b291"
+      ],
+      [
+        "chat2_inferred_solution_bank.csv",
+        "66ba206e0e7052af347289396300ea781196af1b1aa89353f935d44ce5163e02"
+      ],
+      [
+        "chat3_inferred_solution_bank.csv",
+        "112eaa9dee0436ca9e7493c0d28c29cf6d3508f875085d86e235edc48c929c5a"
+      ],
+      [
+        "chat4_inferred_solution_bank.csv",
+        "b1e83a0e200415d6865869b2bd009711b3f11288afe0bda3a5aa2466425774d0"
+      ],
+      [
+        "chat5_inferred_solution_bank.csv",
+        "816737d0ad06f29a5284774b29ddcff38a02a60d1ab1f0eb24aad0849d8d4754"
+      ],
+      [
+        "reviewed_cases_full.csv",
+        "0549d78a3adafd5d7f0fb774e154d3c9d53534ab3af396b5786c4585f574133c"
+      ]
+    ],
+    "with_inferred": [
+      [
+        "chat1_inferred_solution_bank.csv",
+        "fb77fbc08b0ae4b5a2b6480bdf6cf4063e6f64b46077dbda6c60d6d95c93b291"
+      ],
+      [
+        "chat2_inferred_solution_bank.csv",
+        "5920281c6cc1ac21ac72f37bda5fc085e70f64deaa46dcb5039b0e768bae7437"
+      ],
+      [
+        "chat3_inferred_solution_bank.csv",
+        "3100720d10ea0574b94bd7f475a2c681a3395795f3bfdaff6ad6c3de9021aab2"
+      ],
+      [
+        "chat4_inferred_solution_bank.csv",
+        "b1e83a0e200415d6865869b2bd009711b3f11288afe0bda3a5aa2466425774d0"
+      ],
+      [
+        "chat5_inferred_solution_bank.csv",
+        "816737d0ad06f29a5284774b29ddcff38a02a60d1ab1f0eb24aad0849d8d4754"
+      ],
+      [
+        "reviewed_cases_full.csv",
+        "10518732e559650583ce0fdbdcc2e6b759ad3a8338b78bd59e9d5256d5e088ce"
+      ]
+    ]
+  },
+  "scenario_split_effects": {
+    "label_review_v3_20261006": {
+      "validation": {
+        "Убрана неподходящая подсказка": 21,
+        "Добавлен полный ответ": 1,
+        "Убран частичный ответ": 13,
+        "Добавлен частичный ответ": 3,
+        "Потерян полный ответ": 2,
+        "Убран спорный ответ": 2,
+        "Добавлена неподходящая подсказка": 5,
+        "Замена на возможный равноценный полный ответ": 1
+      },
+      "test": {
+        "Убран частичный ответ": 5,
+        "Убрана неподходящая подсказка": 4,
+        "Добавлен полный ответ": 1,
+        "Добавлена неподходящая подсказка": 2
+      }
+    },
+    "with_inferred": {
+      "validation": {
+        "Убрана неподходящая подсказка": 25,
+        "Добавлен полный ответ": 1,
+        "Убран частичный ответ": 15,
+        "Добавлен частичный ответ": 3,
+        "Потерян полный ответ": 3,
+        "Убран спорный ответ": 2,
+        "Добавлена неподходящая подсказка": 5,
+        "Замена на возможный равноценный полный ответ": 1
+      },
+      "test": {
+        "Убран частичный ответ": 5,
+        "Убрана неподходящая подсказка": 7,
+        "Добавлен полный ответ": 1,
+        "Добавлена неподходящая подсказка": 2
+      }
+    }
+  },
+  "unique_candidate_ratings": {
+    "Не подходит": 61,
+    "Полный ответ": 9,
+    "Полезен частично": 28,
+    "Неясно": 2
+  },
+  "importable_review_records": 260
+}

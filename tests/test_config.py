@@ -5,6 +5,14 @@ import pytest
 from already_mentioned.config import DEFAULT_DATABASE_PATH, load_settings
 
 
+def test_mode_switch_and_invalid_mode(monkeypatch, tmp_path):
+    monkeypatch.setenv("SEARCH_MODE", "baseline")
+    assert load_settings(env_file=tmp_path / "missing").search_mode == "baseline"
+    monkeypatch.setenv("SEARCH_MODE", "invalid")
+    with pytest.raises(ValueError, match="SEARCH_MODE"):
+        load_settings(env_file=tmp_path / "missing")
+
+
 def test_defaults_do_not_require_token(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:

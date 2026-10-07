@@ -199,3 +199,46 @@ async def test_search_finds_answer_content_and_backfills_old_answer(
     ).answer_embedding == answer_vector.tobytes()
     await search.find_best(-1001, "Как включить второй фактор?")
     assert embeddings.passages == [answer_text]
+
+
+@pytest.mark.asyncio
+async def test_top_candidates_are_unique_scoped_and_available_below_threshold(storage):
+    chats, solutions = storage
+    await chats.ensure_chat(-1001, "Первый")
+    await chats.ensure_chat(-1002, "Второй")
+    await chats.set_threshold(-1001, 1.0)
+    query = np.array([0.8, 0.6], dtype=np.float32)
+
+    class Embeddings(EmbeddingService):
+        calls = 0
+
+        async def embed_query(self, text):
+            self.calls += 1
+            return query
+
+        async def embed_passage(self, text):
+            raise AssertionError("Векторы уже сохранены")
+
+    ids = []
+    for chat, q, a in (
+        (-1001, [1., 0.], [1., 0.]),
+        (-1001, [0., 1.], [0., 1.]),
+        (-1002, [0.8, 0.6], [0.8, 0.6]),
+    ):
+        ids.append(await solutions.add_solution(
+            chat_id=chat, question_message_id=1, answer_message_id=len(ids) + 2,
+            question_text="Где вход?", answer_text="На сайте",
+            question_embedding=np.array(q, dtype=np.float32).tobytes(),
+            answer_embedding=np.array(a, dtype=np.float32).tobytes(),
+            question_link="https://t.me/c/1/1", answer_link="https://t.me/c/1/2",
+        ))
+    embeddings = Embeddings()
+    service = SearchService(embeddings, chats, solutions)
+    ranked = await service.find_candidates(-1001, "Где вход?", backfill=False)
+    assert [m.solution.id for m in ranked] == ids[:2]
+    assert embeddings.calls == 1
+    assert ranked[0].question_similarity == pytest.approx(0.8)
+    assert ranked[0].answer_similarity == pytest.approx(0.8)
+    assert await service.find_best(-1001, "Где вход?") is None
+    with pytest.raises(ValueError):
+        await service.find_candidates(-1001, "Где вход?", limit=0)

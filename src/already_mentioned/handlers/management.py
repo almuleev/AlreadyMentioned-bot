@@ -21,6 +21,7 @@ from already_mentioned.repositories.solutions import SolutionRepository
 from already_mentioned.services.confirmations import ForgetConfirmations
 from already_mentioned.services.embeddings import EmbeddingService, normalize_vector
 from already_mentioned.services.reply_cache import ReplyCache
+from already_mentioned.services.search import SearchService
 
 router = Router()
 GROUP_TYPES = {ChatType.GROUP, ChatType.SUPERGROUP}
@@ -45,7 +46,7 @@ async def _require_group_admin(message: Message, bot: Bot) -> bool:
 
 
 @router.message(Command("help"))
-async def help_command(message: Message) -> None:
+async def help_command(message: Message, search: SearchService | None = None) -> None:
     await message.answer(
         "AlreadyMentioned предлагает ссылки на сохранённые ответы этого чата.\n"
         f"{SOLVE_USAGE}\n"
@@ -55,7 +56,7 @@ async def help_command(message: Message) -> None:
         "/editquestion ID новый текст — reply на исходный ответ, исправить вопрос.\n"
         "/editanswer ID новый текст — reply на исходный ответ, исправить ответ.\n"
         "ID и ссылку на исходный ответ возьмите из /solutions.\n"
-        f"/threshold {DEFAULT_SIMILARITY_THRESHOLD:.3f} — изменить порог "
+        "/threshold ЧИСЛО — изменить порог активного поиска "
         "(администратор).\n"
         "/forget — удалить решения и оценки после подтверждения (администратор)."
     )
@@ -195,7 +196,8 @@ async def edit_solution_command(
 
 @router.message(Command("status"))
 async def status_command(
-    message: Message, chats: ChatRepository, solutions: SolutionRepository
+    message: Message, chats: ChatRepository, solutions: SolutionRepository,
+    search: SearchService | None = None,
 ) -> None:
     if message.chat.type not in GROUP_TYPES:
         await message.answer("/status работает только в группе или супергруппе.")
@@ -203,14 +205,19 @@ async def status_command(
     await chats.ensure_chat(message.chat.id, message.chat.title or "")
     chat = await chats.get_chat(message.chat.id)
     count = await solutions.count_for_chat(message.chat.id)
+    threshold = search.threshold_for(chat) if search else chat.similarity_threshold
+    mode = f"Поиск: {search.mode_label}. " if search else ""
     await message.answer(
         f"Сохранённых решений: {count}. "
-        f"Порог совпадения: {chat.similarity_threshold:.3f}."
+        f"{mode}Порог совпадения: {threshold:.3f}."
     )
 
 
 @router.message(Command("threshold"))
-async def threshold_command(message: Message, bot: Bot, chats: ChatRepository) -> None:
+async def threshold_command(
+    message: Message, bot: Bot, chats: ChatRepository,
+    search: SearchService | None = None,
+) -> None:
     if not await _require_group_admin(message, bot):
         return
     parts = (message.text or "").split(maxsplit=1)
@@ -230,7 +237,8 @@ async def threshold_command(message: Message, bot: Bot, chats: ChatRepository) -
         )
         return
     await chats.ensure_chat(message.chat.id, message.chat.title or "")
-    await chats.set_threshold(message.chat.id, value)
+    await chats.set_threshold(message.chat.id, value,
+                              hybrid=search is not None and search.mode == "hybrid")
     await message.answer(f"Порог совпадения этого чата: {value:.3f}.")
 
 

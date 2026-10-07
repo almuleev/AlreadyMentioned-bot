@@ -50,6 +50,9 @@ already-mentioned = "already_mentioned.main:main"
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+already_mentioned = ["model_results_viewer.html"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 

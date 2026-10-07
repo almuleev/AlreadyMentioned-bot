@@ -16,3 +16,4 @@ data
 .cache
 .fastembed_cache
 tests
+training_runs

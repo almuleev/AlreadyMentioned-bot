@@ -178,16 +178,16 @@ async def test_migration_statements_and_version_roll_back_together(
     connection = await connect_database(tmp_path / "migration.db")
     try:
         await schema.initialize_database(connection)
-        monkeypatch.setattr(schema, "SCHEMA_VERSION", 5)
+        monkeypatch.setattr(schema, "SCHEMA_VERSION", 6)
         monkeypatch.setattr(
             schema,
             "MIGRATIONS",
-            {5: ("CREATE TABLE temporary_example (id INTEGER)", "INVALID SQL")},
+            {6: ("CREATE TABLE temporary_example (id INTEGER)", "INVALID SQL")},
         )
         with pytest.raises(aiosqlite.OperationalError):
             await schema.initialize_database(connection)
         async with connection.execute("PRAGMA user_version") as cursor:
-            assert (await cursor.fetchone())[0] == 4
+            assert (await cursor.fetchone())[0] == 5
         async with connection.execute(
             "SELECT name FROM sqlite_master WHERE name = 'temporary_example'"
         ) as cursor:
@@ -203,16 +203,16 @@ async def test_future_migration_applies_once_in_a_transaction(
     connection = await connect_database(tmp_path / "future.db")
     try:
         await schema.initialize_database(connection)
-        monkeypatch.setattr(schema, "SCHEMA_VERSION", 5)
+        monkeypatch.setattr(schema, "SCHEMA_VERSION", 6)
         monkeypatch.setattr(
             schema,
             "MIGRATIONS",
-            {5: ("CREATE INDEX test_chat_title ON chats(title)",)},
+            {6: ("CREATE INDEX test_chat_title ON chats(title)",)},
         )
         await schema.initialize_database(connection)
         await schema.initialize_database(connection)
         async with connection.execute("PRAGMA user_version") as cursor:
-            assert (await cursor.fetchone())[0] == 5
+            assert (await cursor.fetchone())[0] == 6
         async with connection.execute(
             "SELECT name FROM sqlite_master WHERE name = 'test_chat_title'"
         ) as cursor:

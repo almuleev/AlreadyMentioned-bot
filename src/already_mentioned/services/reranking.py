@@ -1,4 +1,4 @@
-"""Experimental local pair scoring; the bot does not instantiate this model."""
+"""Pinned local pair scoring for production MiniLM and offline comparisons."""
 
 from pathlib import Path
 from typing import Any, Protocol
@@ -17,6 +17,11 @@ class PairScorer(Protocol):
 
 class OnnxReranker:
     """Pinned multilingual MiniLM cross-encoder with bounded CPU concurrency."""
+
+    model = RERANKER_MODEL
+    revision = RERANKER_REVISION
+    file = RERANKER_FILE
+    experiment_prefix = "frida"
 
     def __init__(
         self,
@@ -46,9 +51,9 @@ class OnnxReranker:
 
         def download(filename: str) -> str:
             return hf_hub_download(
-                RERANKER_MODEL,
+                self.model,
                 filename,
-                revision=RERANKER_REVISION,
+                revision=self.revision,
                 cache_dir=str(self.cache_dir),
                 local_files_only=self.local_only,
                 token=False,
@@ -66,7 +71,7 @@ class OnnxReranker:
         options.intra_op_num_threads = self.threads
         options.inter_op_num_threads = 1
         self._session = ort.InferenceSession(
-            download(RERANKER_FILE),
+            download(self.file),
             sess_options=options,
             providers=["CPUExecutionProvider"],
         )
@@ -110,3 +115,12 @@ class OnnxReranker:
                 bool(getattr(e, "overflowing", [])) for e in encoded
             )
         return result
+
+
+class GteOnnxReranker(OnnxReranker):
+    """Offline FP32 community ONNX export; no remote Python code is loaded."""
+
+    model = "onnx-community/gte-multilingual-reranker-base"
+    revision = "ee64367e35a2db0da46bb6497e13a18f8bd585cb"
+    file = "onnx/model.onnx"
+    experiment_prefix = "frida-gte-fp32"

@@ -8,6 +8,7 @@ class Chat:
     telegram_chat_id: int
     title: str
     similarity_threshold: float
+    hybrid_threshold: float | None = None
 
 
 @dataclass(frozen=True, slots=True)

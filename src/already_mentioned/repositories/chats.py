@@ -25,7 +25,7 @@ class ChatRepository:
     async def get_chat(self, telegram_chat_id: int) -> Chat | None:
         async with self.connection.execute(
             """
-            SELECT telegram_chat_id, title, similarity_threshold
+            SELECT telegram_chat_id, title, similarity_threshold, hybrid_threshold
             FROM chats WHERE telegram_chat_id = ?
             """,
             (telegram_chat_id,),
@@ -33,11 +33,14 @@ class ChatRepository:
             row = await cursor.fetchone()
         return Chat(*row) if row is not None else None
 
-    async def set_threshold(self, telegram_chat_id: int, threshold: float) -> bool:
+    async def set_threshold(
+        self, telegram_chat_id: int, threshold: float, *, hybrid: bool = False
+    ) -> bool:
         if not 0 <= threshold <= 1:
             raise ValueError("Similarity threshold must be between 0 and 1")
+        column = "hybrid_threshold" if hybrid else "similarity_threshold"
         cursor = await self.connection.execute(
-            "UPDATE chats SET similarity_threshold = ? WHERE telegram_chat_id = ?",
+            f"UPDATE chats SET {column} = ? WHERE telegram_chat_id = ?",
             (threshold, telegram_chat_id),
         )
         await self.connection.commit()
