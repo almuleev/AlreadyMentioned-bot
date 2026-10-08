@@ -7,7 +7,7 @@ This is a Python 3.12 Telegram bot (aiogram 3, SQLite, Sentence Transformers). S
 | Task area | Read first | Relevant tests |
 | --- | --- | --- |
 | Startup, configuration, Docker | `src/already_mentioned/main.py`, `config.py`, `bot/factory.py`, `pyproject.toml`, `Dockerfile`, `docker-compose.yml` | `test_config.py` |
-| Commands and Telegram interactions | `src/already_mentioned/handlers/`, `bot/permissions.py` | `test_solve.py`, `test_management.py`, `test_messages.py` |
+| Commands and Telegram interactions | `src/already_mentioned/handlers/`, `bot/permissions.py`, `services/welcome.py` | `test_onboarding.py`, `test_solve.py`, `test_management.py`, `test_messages.py` |
 | Question detection and ranking | `src/already_mentioned/services/questions.py`, `search.py`, `similarity.py`, `evaluation.py`, `evaluation_cases.py`, `historical_evaluation.py`, `threshold_calibration.py` | `test_search.py`, `test_similarity.py`, `test_evaluation.py`, `test_historical_evaluation.py`, `test_threshold_calibration.py` |
 | Embedding model and offline experiments | `src/already_mentioned/services/embeddings.py`, `services/reranking.py`, `reranking_evaluation.py`, `diagnostics.py`, `model_comparison.py`, `historical_model_comparison.py`, `offline_training.py`, `public_model_comparison.py`, `candidate_model_comparison.py` | `test_embeddings.py`, `test_reranking.py`, `test_reranking_evaluation.py`, `test_diagnostics.py`, `test_evaluation.py`, `test_historical_model_comparison.py`, `test_offline_training.py`, `test_public_model_comparison.py`, `test_candidate_model_comparison.py` |
 | Persistence, migrations, backups | `src/already_mentioned/database/`, `repositories/`, `models/entities.py` | `test_database.py`, `test_schema_migrations.py`, `test_backup.py`, `test_frida_migration.py` |
@@ -39,6 +39,8 @@ User-facing text, the website, and user documentation are Russian-only. Keep pro
 The preceding 0.458 / beta-1.1 settings describe the preserved baseline and historical experiments. The current production hybrid follows the partial-answer / F2 policy below and has its own threshold. Schema 5 and the production MiniLM path below supersede the old offline-only reranking boundary; historical experiment CLIs remain offline.
 
 ## Change workflow
+
+`handlers/start.py` provides private onboarding and a read-only group wizard. Group `onboard:` callbacks recheck the acting administrator; checks use fresh Telegram permissions and current-chat solution counts without changing settings or creating example solutions. `my_chat_member` welcomes only joins into groups; `WelcomeMessages` suppresses join/deep-link duplicates for 60 seconds with at most 1000 in-memory chat IDs. Explicit group `/start` remains available; autosave stays silent. Privacy-mode metadata is not proof of real delivery; instructions require re-adding after a change and testing a real question/reply.
 
 Production search supports `SEARCH_MODE=hybrid` (FRIDA max cosine 75% + pinned MiniLM pair score 25%, top five, batch_size=1, 512 tokens) and `baseline` rollback. SQLite version 5 adds nullable per-chat `hybrid_threshold`, separate from legacy `similarity_threshold`; refreshing a chat preserves both. `/threshold` and `/status` use the active mode. Pair inference runs serially off the event loop; cache failure blocks startup rather than silently changing scoring.
 

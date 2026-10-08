@@ -26,6 +26,7 @@ from already_mentioned.services.feedback_cleanup import FeedbackCleanup
 from already_mentioned.services.reply_cache import ReplyCache
 from already_mentioned.services.reranking import OnnxReranker
 from already_mentioned.services.search import SearchService
+from already_mentioned.services.welcome import WelcomeMessages
 
 
 async def run() -> None:
@@ -79,6 +80,7 @@ async def _run(settings: Settings) -> None:
             feedback_cleanup=feedback_cleanup,
             embeddings=embeddings,
             search=search,
+            welcome_messages=WelcomeMessages(),
         )
     finally:
         if cleanup_task is not None:
