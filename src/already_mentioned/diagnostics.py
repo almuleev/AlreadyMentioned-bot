@@ -92,7 +92,9 @@ async def inspect_question(
     print(f"Совпало с: {source}")
     print(f"Поиск: {search.mode_label}")
     print(f"Порог чата: {threshold:.3f}")
-    if not is_question_candidate(question):
+    if not chat.suggestions_enabled:
+        print("Результат: бот промолчал бы — подсказки на паузе.")
+    elif not is_question_candidate(question):
         print("Результат: бот промолчал бы — сообщение не прошло фильтр вопросов.")
     elif score >= threshold:
         print("Результат: бот предложил бы ссылку.")

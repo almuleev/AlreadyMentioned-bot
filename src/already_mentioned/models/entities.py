@@ -9,6 +9,7 @@ class Chat:
     title: str
     similarity_threshold: float
     hybrid_threshold: float | None = None
+    suggestions_enabled: bool = True
 
 
 @dataclass(frozen=True, slots=True)

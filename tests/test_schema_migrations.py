@@ -47,6 +47,34 @@ CREATE INDEX idx_feedback_solution_id ON feedback(solution_id);
 
 
 @pytest.mark.asyncio
+async def test_version_five_adds_enabled_pause_without_changing_existing_rows(tmp_path):
+    connection = await connect_database(tmp_path / "version-five.db")
+    try:
+        await schema.initialize_database(connection)
+        chats = ChatRepository(connection)
+        await chats.ensure_chat(-1001, "Тест")
+        await chats.set_threshold(-1001, .81)
+        await chats.set_threshold(-1001, .42, hybrid=True)
+        await connection.execute("ALTER TABLE chats DROP COLUMN suggestions_enabled")
+        await connection.execute("PRAGMA user_version = 5")
+        await connection.commit()
+        async with connection.execute("SELECT * FROM chats") as cursor:
+            previous = await cursor.fetchall()
+        await schema.initialize_database(connection)
+        async with connection.execute("SELECT * FROM chats") as cursor:
+            current = await cursor.fetchall()
+        assert [tuple(row[:-1]) for row in current] == [tuple(row) for row in previous]
+        chat = await chats.get_chat(-1001)
+        assert chat.suggestions_enabled
+        assert (chat.similarity_threshold, chat.hybrid_threshold) == (.81, .42)
+        with pytest.raises(sqlite3.IntegrityError):
+            await connection.execute("UPDATE chats SET suggestions_enabled = 2")
+        await connection.rollback()
+    finally:
+        await connection.close()
+
+
+@pytest.mark.asyncio
 async def test_version_one_migrates_answer_vectors_without_losing_data(
     tmp_path,
 ) -> None:
@@ -178,16 +206,18 @@ async def test_migration_statements_and_version_roll_back_together(
     connection = await connect_database(tmp_path / "migration.db")
     try:
         await schema.initialize_database(connection)
-        monkeypatch.setattr(schema, "SCHEMA_VERSION", 6)
+        previous = schema.SCHEMA_VERSION
+        target = previous + 1
+        monkeypatch.setattr(schema, "SCHEMA_VERSION", target)
         monkeypatch.setattr(
             schema,
             "MIGRATIONS",
-            {6: ("CREATE TABLE temporary_example (id INTEGER)", "INVALID SQL")},
+            {target: ("CREATE TABLE temporary_example (id INTEGER)", "INVALID SQL")},
         )
         with pytest.raises(aiosqlite.OperationalError):
             await schema.initialize_database(connection)
         async with connection.execute("PRAGMA user_version") as cursor:
-            assert (await cursor.fetchone())[0] == 5
+            assert (await cursor.fetchone())[0] == previous
         async with connection.execute(
             "SELECT name FROM sqlite_master WHERE name = 'temporary_example'"
         ) as cursor:
@@ -203,16 +233,17 @@ async def test_future_migration_applies_once_in_a_transaction(
     connection = await connect_database(tmp_path / "future.db")
     try:
         await schema.initialize_database(connection)
-        monkeypatch.setattr(schema, "SCHEMA_VERSION", 6)
+        target = schema.SCHEMA_VERSION + 1
+        monkeypatch.setattr(schema, "SCHEMA_VERSION", target)
         monkeypatch.setattr(
             schema,
             "MIGRATIONS",
-            {6: ("CREATE INDEX test_chat_title ON chats(title)",)},
+            {target: ("CREATE INDEX test_chat_title ON chats(title)",)},
         )
         await schema.initialize_database(connection)
         await schema.initialize_database(connection)
         async with connection.execute("PRAGMA user_version") as cursor:
-            assert (await cursor.fetchone())[0] == 6
+            assert (await cursor.fetchone())[0] == target
         async with connection.execute(
             "SELECT name FROM sqlite_master WHERE name = 'test_chat_title'"
         ) as cursor:

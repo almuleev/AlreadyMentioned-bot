@@ -118,3 +118,29 @@ async def test_bad_reranker_output_never_falls_back_to_unchecked_answer(storage,
 def test_hybrid_requires_scorer():
     with pytest.raises(ValueError):
         SearchService(None, None, None, mode="hybrid")
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("change", ["pause", "threshold"])
+async def test_decision_rechecks_settings_changed_during_inference(storage, change):
+    chats, solutions, _ = await prepare(storage)
+    started, release = asyncio.Event(), asyncio.Event()
+    encoder = Encoder()
+
+    async def delayed_query(text):
+        started.set()
+        await release.wait()
+        return np.array([1., 0.], dtype=np.float32)
+
+    encoder.embed_query = delayed_query
+    search = SearchService(encoder, chats, solutions, mode="hybrid", reranker=Scorer())
+    request = asyncio.create_task(search.find_best(-1, "Как войти?"))
+    await asyncio.wait_for(started.wait(), timeout=2)
+    try:
+        if change == "pause":
+            await chats.set_suggestions_enabled(-1, False)
+        else:
+            await chats.set_threshold(-1, .99, hybrid=True)
+    finally:
+        release.set()
+    assert await asyncio.wait_for(request, timeout=2) is None

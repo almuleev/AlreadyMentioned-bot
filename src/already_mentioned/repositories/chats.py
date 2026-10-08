@@ -25,13 +25,37 @@ class ChatRepository:
     async def get_chat(self, telegram_chat_id: int) -> Chat | None:
         async with self.connection.execute(
             """
-            SELECT telegram_chat_id, title, similarity_threshold, hybrid_threshold
+            SELECT telegram_chat_id, title, similarity_threshold, hybrid_threshold,
+                   suggestions_enabled
             FROM chats WHERE telegram_chat_id = ?
             """,
             (telegram_chat_id,),
         ) as cursor:
             row = await cursor.fetchone()
-        return Chat(*row) if row is not None else None
+        return Chat(*row[:4], bool(row[4])) if row is not None else None
+
+    async def set_suggestions_enabled(self, chat_id: int, enabled: bool) -> bool:
+        cursor = await self.connection.execute(
+            "UPDATE chats SET suggestions_enabled = ? WHERE telegram_chat_id = ?",
+            (int(enabled), chat_id),
+        )
+        await self.connection.commit()
+        return cursor.rowcount > 0
+
+    async def confirm_threshold(
+        self, chat_id: int, expected: float | None, value: float, *, hybrid: bool
+    ) -> bool:
+        """Atomically reject a preview superseded by another administrator."""
+        if not 0 <= value <= 1:
+            raise ValueError("Threshold must be between zero and one")
+        column = "hybrid_threshold" if hybrid else "similarity_threshold"
+        cursor = await self.connection.execute(
+            f"UPDATE chats SET {column} = ? WHERE telegram_chat_id = ? "
+            f"AND {column} IS ?",
+            (value, chat_id, expected),
+        )
+        await self.connection.commit()
+        return cursor.rowcount > 0
 
     async def set_threshold(
         self, telegram_chat_id: int, threshold: float, *, hybrid: bool = False

@@ -52,6 +52,7 @@ async def help_command(message: Message, search: SearchService | None = None) ->
         f"{SOLVE_USAGE}\n"
         "/undo — ответить на сохранённый ответ и удалить его (администратор).\n"
         "/status — число решений и порог совпадения.\n"
+        "/settings — меню настроек группы (администратор).\n"
         "/solutions [страница] — список решений этого чата (администратор).\n"
         "/editquestion ID новый текст — reply на исходный ответ, исправить вопрос.\n"
         "/editanswer ID новый текст — reply на исходный ответ, исправить ответ.\n"
@@ -196,7 +197,9 @@ async def edit_solution_command(
 
 @router.message(Command("status"))
 async def status_command(
-    message: Message, chats: ChatRepository, solutions: SolutionRepository,
+    message: Message,
+    chats: ChatRepository,
+    solutions: SolutionRepository,
     search: SearchService | None = None,
 ) -> None:
     if message.chat.type not in GROUP_TYPES:
@@ -207,15 +210,19 @@ async def status_command(
     count = await solutions.count_for_chat(message.chat.id)
     threshold = search.threshold_for(chat) if search else chat.similarity_threshold
     mode = f"Поиск: {search.mode_label}. " if search else ""
+    state = (
+        "Подсказки включены. " if chat.suggestions_enabled else "Подсказки на паузе. "
+    )
     await message.answer(
-        f"Сохранённых решений: {count}. "
-        f"{mode}Порог совпадения: {threshold:.3f}."
+        f"Сохранённых решений: {count}. {state}{mode}Порог совпадения: {threshold:.3f}."
     )
 
 
 @router.message(Command("threshold"))
 async def threshold_command(
-    message: Message, bot: Bot, chats: ChatRepository,
+    message: Message,
+    bot: Bot,
+    chats: ChatRepository,
     search: SearchService | None = None,
 ) -> None:
     if not await _require_group_admin(message, bot):
@@ -237,8 +244,9 @@ async def threshold_command(
         )
         return
     await chats.ensure_chat(message.chat.id, message.chat.title or "")
-    await chats.set_threshold(message.chat.id, value,
-                              hybrid=search is not None and search.mode == "hybrid")
+    await chats.set_threshold(
+        message.chat.id, value, hybrid=search is not None and search.mode == "hybrid"
+    )
     await message.answer(f"Порог совпадения этого чата: {value:.3f}.")
 
 

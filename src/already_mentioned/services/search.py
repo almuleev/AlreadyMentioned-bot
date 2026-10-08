@@ -59,13 +59,20 @@ class SearchService:
 
     async def find_best(self, chat_id: int, question: str) -> SearchMatch | None:
         chat = await self.chats.get_chat(chat_id)
-        if chat is None:
+        if chat is None or not chat.suggestions_enabled:
             return None
         ranked = await self.find_candidates(
             chat_id, question, limit=5 if self.mode == "hybrid" else 1
         )
         ranked = await self.rerank_candidates(question, ranked)
-        if not ranked or ranked[0].similarity < self.threshold_for(chat):
+        # Honor a pause or threshold change made while inference was in flight.
+        chat = await self.chats.get_chat(chat_id)
+        if (
+            chat is None
+            or not chat.suggestions_enabled
+            or not ranked
+            or ranked[0].similarity < self.threshold_for(chat)
+        ):
             return None
         return ranked[0]
 

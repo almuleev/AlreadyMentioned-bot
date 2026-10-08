@@ -6,7 +6,7 @@ import aiosqlite
 
 from already_mentioned.services.embeddings import E5_CONTRACT
 
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 
 # Add consecutive target versions here when an existing table must change.
 # Each tuple runs inside the same transaction as its user_version update.
@@ -28,6 +28,10 @@ MIGRATIONS: dict[int, tuple[str, ...]] = {
     5: (
         "ALTER TABLE chats ADD COLUMN hybrid_threshold REAL "
         "CHECK (hybrid_threshold >= 0 AND hybrid_threshold <= 1)",
+    ),
+    6: (
+        "ALTER TABLE chats ADD COLUMN suggestions_enabled INTEGER NOT NULL "
+        "DEFAULT 1 CHECK (suggestions_enabled IN (0, 1))",
     ),
 }
 
@@ -146,6 +150,11 @@ async def initialize_database(connection: aiosqlite.Connection) -> None:
             if version >= 5:
                 async with connection.execute(
                     "SELECT hybrid_threshold FROM chats LIMIT 0"
+                ):
+                    pass
+            if version >= 6:
+                async with connection.execute(
+                    "SELECT suggestions_enabled FROM chats LIMIT 0"
                 ):
                     pass
         for target in range(version + 1, SCHEMA_VERSION + 1):

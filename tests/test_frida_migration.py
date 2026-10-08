@@ -60,6 +60,7 @@ async def old_database(path):
     await connection.execute("DROP TABLE feedback_keyboards")
     await connection.execute("DROP TABLE embedding_state")
     await connection.execute("ALTER TABLE chats DROP COLUMN hybrid_threshold")
+    await connection.execute("ALTER TABLE chats DROP COLUMN suggestions_enabled")
     await connection.execute("PRAGMA user_version = 2")
     await connection.commit()
     await connection.close()

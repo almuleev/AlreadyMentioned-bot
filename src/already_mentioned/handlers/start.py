@@ -72,6 +72,7 @@ def group_menu():
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [button("Проверить подключение", "check")],
+            [InlineKeyboardButton(text="Настройки", callback_data="cfg:home")],
             [button("Первый ответ", "example")],
             [button("Как работает", "how"), button("Помощь", "help")],
         ]

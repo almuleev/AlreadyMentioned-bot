@@ -15,6 +15,7 @@ from already_mentioned.database.schema import initialize_database
 from already_mentioned.handlers.feedback import router as feedback_router
 from already_mentioned.handlers.management import router as management_router
 from already_mentioned.handlers.messages import router as messages_router
+from already_mentioned.handlers.settings import router as settings_router
 from already_mentioned.handlers.solve import router as solve_router
 from already_mentioned.handlers.start import router as start_router
 from already_mentioned.repositories.chats import ChatRepository
@@ -26,6 +27,7 @@ from already_mentioned.services.feedback_cleanup import FeedbackCleanup
 from already_mentioned.services.reply_cache import ReplyCache
 from already_mentioned.services.reranking import OnnxReranker
 from already_mentioned.services.search import SearchService
+from already_mentioned.services.settings_sessions import SettingsSessions
 from already_mentioned.services.welcome import WelcomeMessages
 
 
@@ -39,6 +41,7 @@ async def _run(settings: Settings) -> None:
     bot = create_bot(settings)
     dispatcher = Dispatcher()
     dispatcher.include_router(start_router)
+    dispatcher.include_router(settings_router)
     dispatcher.include_router(solve_router)
     dispatcher.include_router(management_router)
     dispatcher.include_router(messages_router)
@@ -81,6 +84,7 @@ async def _run(settings: Settings) -> None:
             embeddings=embeddings,
             search=search,
             welcome_messages=WelcomeMessages(),
+            settings_sessions=SettingsSessions(),
         )
     finally:
         if cleanup_task is not None:
