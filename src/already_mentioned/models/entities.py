@@ -34,6 +34,27 @@ class SolutionSummary:
 
 
 @dataclass(frozen=True, slots=True)
+class SolutionRevision:
+    """Content snapshot for atomic administrator changes, without vectors."""
+
+    id: int
+    chat_id: int
+    answer_message_id: int
+    question_text: str
+    answer_text: str
+
+    @classmethod
+    def of(cls, solution: Solution) -> "SolutionRevision":
+        return cls(
+            solution.id,
+            solution.chat_id,
+            solution.answer_message_id,
+            solution.question_text,
+            solution.answer_text,
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class Feedback:
     id: int
     solution_id: int

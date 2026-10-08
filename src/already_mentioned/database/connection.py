@@ -13,4 +13,5 @@ async def connect_database(path: str | Path) -> aiosqlite.Connection:
     connection = await aiosqlite.connect(database_path)
     await connection.execute("PRAGMA foreign_keys = ON")
     await connection.execute("PRAGMA busy_timeout = 5000")
+    await connection.create_function("casefold", 1, str.casefold, deterministic=True)
     return connection

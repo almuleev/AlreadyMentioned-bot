@@ -2,7 +2,11 @@
 
 import aiosqlite
 
-from already_mentioned.models.entities import Solution, SolutionSummary
+from already_mentioned.models.entities import (
+    Solution,
+    SolutionRevision,
+    SolutionSummary,
+)
 
 
 class SolutionRepository:
@@ -60,17 +64,30 @@ class SolutionRepository:
             rows = await cursor.fetchall()
         return [Solution(*row) for row in rows]
 
-    async def count_for_chat(self, chat_id: int) -> int:
+    @staticmethod
+    def _search_clause(query: str | None) -> tuple[str, tuple]:
+        if query is None:
+            return "", ()
+        return (
+            " AND (instr(casefold(question_text), casefold(?)) > 0 "
+            "OR instr(casefold(answer_text), casefold(?)) > 0)",
+            (query, query),
+        )
+
+    async def count_for_chat(self, chat_id: int, *, query: str | None = None) -> int:
+        clause, parameters = self._search_clause(query)
         async with self.connection.execute(
-            "SELECT COUNT(*) FROM solutions WHERE chat_id = ?", (chat_id,)
+            "SELECT COUNT(*) FROM solutions WHERE chat_id = ?" + clause,
+            (chat_id, *parameters),
         ) as cursor:
             row = await cursor.fetchone()
         return row[0]
 
     async def page_for_chat(
-        self, chat_id: int, *, limit: int, offset: int
+        self, chat_id: int, *, limit: int, offset: int, query: str | None = None
     ) -> list[SolutionSummary]:
         """Return a bounded page with vote totals, newest solution first."""
+        clause, parameters = self._search_clause(query)
         async with self.connection.execute(
             """
             SELECT s.id, s.chat_id, s.question_message_id, s.answer_message_id,
@@ -81,11 +98,14 @@ class SolutionRepository:
             FROM solutions AS s
             LEFT JOIN feedback AS f ON f.solution_id = s.id
             WHERE s.chat_id = ?
+            """
+            + clause
+            + """
             GROUP BY s.id
             ORDER BY s.id DESC
             LIMIT ? OFFSET ?
             """,
-            (chat_id, limit, offset),
+            (chat_id, *parameters, limit, offset),
         ) as cursor:
             rows = await cursor.fetchall()
         return [
@@ -105,6 +125,60 @@ class SolutionRepository:
         ) as cursor:
             row = await cursor.fetchone()
         return Solution(*row) if row is not None else None
+
+    async def summary_for_chat(
+        self, chat_id: int, solution_id: int
+    ) -> SolutionSummary | None:
+        solution = await self.get_for_chat(chat_id, solution_id)
+        if solution is None:
+            return None
+        async with self.connection.execute(
+            "SELECT COUNT(CASE WHEN vote = 'helpful' THEN 1 END), "
+            "COUNT(CASE WHEN vote = 'not_helpful' THEN 1 END) "
+            "FROM feedback WHERE solution_id = ?",
+            (solution_id,),
+        ) as cursor:
+            votes = await cursor.fetchone()
+        return SolutionSummary(solution, *votes)
+
+    async def replace_text(
+        self, expected: SolutionRevision, *, field: str, text: str, embedding: bytes
+    ) -> bool:
+        """Change one document only if both texts still match the displayed pair."""
+        if field not in {"question", "answer"} or not text.strip():
+            raise ValueError("Invalid solution edit")
+        cursor = await self.connection.execute(
+            f"UPDATE solutions SET {field}_text = ?, {field}_embedding = ? "
+            "WHERE chat_id = ? AND id = ? AND answer_message_id = ? "
+            "AND question_text = ? AND answer_text = ?",
+            (
+                text,
+                embedding,
+                expected.chat_id,
+                expected.id,
+                expected.answer_message_id,
+                expected.question_text,
+                expected.answer_text,
+            ),
+        )
+        await self.connection.commit()
+        return cursor.rowcount > 0
+
+    async def delete_revision(self, expected: SolutionRevision) -> bool:
+        """Delete exactly the reviewed pair and its cascaded votes."""
+        cursor = await self.connection.execute(
+            "DELETE FROM solutions WHERE chat_id = ? AND id = ? "
+            "AND answer_message_id = ? AND question_text = ? AND answer_text = ?",
+            (
+                expected.chat_id,
+                expected.id,
+                expected.answer_message_id,
+                expected.question_text,
+                expected.answer_text,
+            ),
+        )
+        await self.connection.commit()
+        return cursor.rowcount > 0
 
     async def get_by_pair(
         self, chat_id: int, question_message_id: int, answer_message_id: int

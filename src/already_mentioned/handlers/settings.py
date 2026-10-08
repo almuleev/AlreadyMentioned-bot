@@ -6,15 +6,11 @@ from html import escape
 from aiogram import Bot, F, Router
 from aiogram.dispatcher.event.bases import SkipHandler
 from aiogram.enums import ChatType, ParseMode
-from aiogram.exceptions import TelegramBadRequest
 from aiogram.filters import Command
 from aiogram.types import (
     CallbackQuery,
     ForceReply,
     InaccessibleMessage,
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
-    LinkPreviewOptions,
     Message,
 )
 
@@ -24,9 +20,12 @@ from already_mentioned.config import (
     DEFAULT_SIMILARITY_THRESHOLD,
 )
 from already_mentioned.error_logging import log_operation_error
+from already_mentioned.handlers.bank import bank_page
+from already_mentioned.handlers.menu import clip, edit_menu, keyboard
 from already_mentioned.handlers.start import HELP, connection
 from already_mentioned.repositories.chats import ChatRepository
 from already_mentioned.repositories.solutions import SolutionRepository
+from already_mentioned.services.bank_sessions import BankSessions
 from already_mentioned.services.questions import is_question_candidate
 from already_mentioned.services.search import SearchService
 from already_mentioned.services.settings_sessions import SettingsSessions
@@ -34,18 +33,6 @@ from already_mentioned.services.settings_sessions import SettingsSessions
 router = Router()
 GROUP_TYPES = {ChatType.GROUP, ChatType.SUPERGROUP}
 PROMPTS = {"question": "Проверка вопроса", "threshold": "Новый порог подсказок"}
-
-
-def keyboard(*rows):
-    return InlineKeyboardMarkup(
-        inline_keyboard=[
-            [
-                InlineKeyboardButton(text=text, callback_data=f"cfg:{action}")
-                for text, action in row
-            ]
-            for row in rows
-        ]
-    )
 
 
 def back():
@@ -59,25 +46,6 @@ def home_keyboard():
         [("Проверить вопрос", "question")],
         [("Состояние", "status"), ("Помощь", "help")],
     )
-
-
-def clip(text, length):
-    return escape(text[:length] + ("…" if len(text) > length else ""))
-
-
-async def edit_menu(bot, chat_id, menu_id, text, markup):
-    try:
-        await bot.edit_message_text(
-            text,
-            chat_id=chat_id,
-            message_id=menu_id,
-            reply_markup=markup,
-            parse_mode=ParseMode.HTML,
-            link_preview_options=LinkPreviewOptions(is_disabled=True),
-        )
-    except TelegramBadRequest as error:
-        if "message is not modified" not in error.message.lower():
-            raise
 
 
 async def home(chats, solutions, chat_id):
@@ -213,40 +181,6 @@ async def question_result(bot, chats, search, chat_id, menu_id, question):
     )
 
 
-async def bank_page(solutions, chat_id, page):
-    total = await solutions.count_for_chat(chat_id)
-    pages = max(1, (total + 2) // 3)
-    if not 1 <= page <= pages:
-        return "Страница устарела. Откройте список заново.", back()
-    rows = await solutions.page_for_chat(chat_id, limit=3, offset=(page - 1) * 3)
-    lines = [f"<b>Сохранённые ответы</b> — {page}/{pages}, всего {total}."]
-    if not rows:
-        lines.append(
-            "Ответов пока нет. Администратор отвечает через reply "
-            "на реальный вопрос участника; подходящая пара сохранится тихо."
-        )
-    for row in rows:
-        s = row.solution
-        lines.append(
-            f"<b>#{s.id}</b> {clip(s.question_text, 200)}\n"
-            f"{clip(s.answer_text, 260)}\n"
-            f'<a href="{escape(s.answer_link, quote=True)}">Оригинал</a> · '
-            f"👍 {row.helpful} / 👎 {row.not_helpful}"
-        )
-    lines.append(
-        "Полный список: /solutions. Для исправления ответьте на исходный "
-        "ответ командой /editquestion ID текст или /editanswer ID текст."
-    )
-    nav = []
-    if page > 1:
-        nav.append(("Назад", f"bank:{page - 1}"))
-    if page < pages:
-        nav.append(("Далее", f"bank:{page + 1}"))
-    return "\n\n".join(lines), keyboard(
-        *([nav] if nav else []), [("К настройкам", "home")]
-    )
-
-
 @router.message(Command("settings"))
 async def settings_command(
     message: Message, bot: Bot, chats: ChatRepository, solutions: SolutionRepository
@@ -278,6 +212,7 @@ async def navigate(
     solutions: SolutionRepository,
     search: SearchService,
     settings_sessions: SettingsSessions,
+    bank_sessions: BankSessions | None = None,
 ):
     message = callback.message
     if (
@@ -299,6 +234,8 @@ async def navigate(
                 "Настройки доступны администратору группы.", show_alert=True
             )
             return
+        if bank_sessions is not None:
+            bank_sessions.discard_menu(chat_id, menu_id)
         action = (callback.data or "").removeprefix("cfg:")
         if not await chats.get_chat(chat_id):
             await chats.ensure_chat(chat_id, message.chat.title or "")
