@@ -26,6 +26,7 @@ from already_mentioned.handlers.start import HELP, connection
 from already_mentioned.repositories.chats import ChatRepository
 from already_mentioned.repositories.solutions import SolutionRepository
 from already_mentioned.services.bank_sessions import BankSessions
+from already_mentioned.services.faq_sessions import FaqSessions
 from already_mentioned.services.questions import is_question_candidate
 from already_mentioned.services.search import SearchService
 from already_mentioned.services.settings_sessions import SettingsSessions
@@ -213,6 +214,7 @@ async def navigate(
     search: SearchService,
     settings_sessions: SettingsSessions,
     bank_sessions: BankSessions | None = None,
+    faq_sessions: FaqSessions | None = None,
 ):
     message = callback.message
     if (
@@ -236,6 +238,8 @@ async def navigate(
             return
         if bank_sessions is not None:
             bank_sessions.discard_menu(chat_id, menu_id)
+        if faq_sessions is not None:
+            faq_sessions.discard_menu(chat_id, menu_id)
         action = (callback.data or "").removeprefix("cfg:")
         if not await chats.get_chat(chat_id):
             await chats.ensure_chat(chat_id, message.chat.title or "")

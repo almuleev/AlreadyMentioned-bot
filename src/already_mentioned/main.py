@@ -13,6 +13,7 @@ from already_mentioned.database.embedding_contract import require_frida
 from already_mentioned.database.process_lock import database_process_lock
 from already_mentioned.database.schema import initialize_database
 from already_mentioned.handlers.bank import router as bank_router
+from already_mentioned.handlers.faq import router as faq_router
 from already_mentioned.handlers.feedback import router as feedback_router
 from already_mentioned.handlers.management import router as management_router
 from already_mentioned.handlers.messages import router as messages_router
@@ -20,11 +21,14 @@ from already_mentioned.handlers.settings import router as settings_router
 from already_mentioned.handlers.solve import router as solve_router
 from already_mentioned.handlers.start import router as start_router
 from already_mentioned.repositories.chats import ChatRepository
+from already_mentioned.repositories.faq import FaqRepository
 from already_mentioned.repositories.feedback import FeedbackRepository
 from already_mentioned.repositories.solutions import SolutionRepository
 from already_mentioned.services.bank_sessions import BankSessions
 from already_mentioned.services.confirmations import ForgetConfirmations
 from already_mentioned.services.embeddings import FridaEmbeddingService
+from already_mentioned.services.faq_publisher import FaqPublisher
+from already_mentioned.services.faq_sessions import FaqSessions
 from already_mentioned.services.feedback_cleanup import FeedbackCleanup
 from already_mentioned.services.reply_cache import ReplyCache
 from already_mentioned.services.reranking import OnnxReranker
@@ -43,6 +47,7 @@ async def _run(settings: Settings) -> None:
     bot = create_bot(settings)
     dispatcher = Dispatcher()
     dispatcher.include_router(start_router)
+    dispatcher.include_router(faq_router)
     dispatcher.include_router(bank_router)
     dispatcher.include_router(settings_router)
     dispatcher.include_router(solve_router)
@@ -57,6 +62,11 @@ async def _run(settings: Settings) -> None:
         await require_frida(database, adopt_empty=True)
         chats = ChatRepository(database)
         solutions = SolutionRepository(database)
+        faq = FaqRepository(database)
+        await database.execute(
+            "UPDATE faq_jobs SET status = 'paused' WHERE status = 'running'"
+        )
+        await database.commit()
         embeddings = FridaEmbeddingService()
         # Fail before polling if the pinned cache cannot be loaded.
         await embeddings.embed_query("Проверка загрузки")
@@ -89,6 +99,9 @@ async def _run(settings: Settings) -> None:
             welcome_messages=WelcomeMessages(),
             settings_sessions=SettingsSessions(),
             bank_sessions=BankSessions(),
+            faq=faq,
+            faq_sessions=FaqSessions(),
+            faq_publisher=FaqPublisher(bot, faq, solutions, embeddings),
         )
     finally:
         if cleanup_task is not None:

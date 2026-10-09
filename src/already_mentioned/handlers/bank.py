@@ -21,6 +21,7 @@ from already_mentioned.models.entities import SolutionRevision
 from already_mentioned.repositories.solutions import SolutionRepository
 from already_mentioned.services.bank_sessions import BankSessions
 from already_mentioned.services.embeddings import EmbeddingService, normalize_vector
+from already_mentioned.services.faq_sessions import FaqSessions
 from already_mentioned.services.reply_cache import ReplyCache
 
 router = Router()
@@ -90,7 +91,16 @@ async def bank_page(solutions, chat_id, page, *, view="-", query=None):
     lines.append(
         "Откройте карточку, чтобы прочитать целиком, исправить или удалить пару."
     )
-    return "\n\n".join(lines), controls(*buttons)
+    markup = controls(*buttons)
+    markup.inline_keyboard.insert(
+        -1,
+        [
+            InlineKeyboardButton(
+                text="Добавить / загрузить FAQ", callback_data="faq:home"
+            )
+        ],
+    )
+    return "\n\n".join(lines), markup
 
 
 def query_for(sessions, view, chat_id, user_id, menu_id):
@@ -174,6 +184,7 @@ async def navigate(
     solutions: SolutionRepository,
     bank_sessions: BankSessions,
     reply_cache: ReplyCache,
+    faq_sessions: FaqSessions | None = None,
 ):
     message = callback.message
     if (
@@ -196,6 +207,8 @@ async def navigate(
             )
             return
         parts = (callback.data or "").split(":")[1:]
+        if faq_sessions is not None:
+            faq_sessions.discard_menu(chat_id, menu_id)
         action = parts[0]
         if action in {"confirm", "cancel"} and len(parts) == 2:
             state = bank_sessions.take_deletion(parts[1], chat_id, user_id, menu_id)

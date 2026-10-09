@@ -58,6 +58,8 @@ async def old_database(path):
         "VALUES (1, 3, 4, 'helpful')"
     )
     await connection.execute("DROP TABLE feedback_keyboards")
+    await connection.execute("DROP TABLE faq_items")
+    await connection.execute("DROP TABLE faq_jobs")
     await connection.execute("DROP TABLE embedding_state")
     await connection.execute("ALTER TABLE chats DROP COLUMN hybrid_threshold")
     await connection.execute("ALTER TABLE chats DROP COLUMN suggestions_enabled")

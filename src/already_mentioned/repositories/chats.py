@@ -72,6 +72,9 @@ class ChatRepository:
 
     async def forget_chat_data(self, telegram_chat_id: int) -> int:
         """Delete this chat's solutions and cascaded feedback; keep chat settings."""
+        await self.connection.execute(
+            "DELETE FROM faq_jobs WHERE chat_id = ?", (telegram_chat_id,)
+        )
         cursor = await self.connection.execute(
             "DELETE FROM solutions WHERE chat_id = ?", (telegram_chat_id,)
         )

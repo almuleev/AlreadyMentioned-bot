@@ -53,10 +53,12 @@ async def test_version_five_adds_enabled_pause_without_changing_existing_rows(tm
         await schema.initialize_database(connection)
         chats = ChatRepository(connection)
         await chats.ensure_chat(-1001, "Тест")
-        await chats.set_threshold(-1001, .81)
-        await chats.set_threshold(-1001, .42, hybrid=True)
+        await chats.set_threshold(-1001, 0.81)
+        await chats.set_threshold(-1001, 0.42, hybrid=True)
         await connection.execute("ALTER TABLE chats DROP COLUMN suggestions_enabled")
         await connection.execute("PRAGMA user_version = 5")
+        await connection.execute("DROP TABLE faq_items")
+        await connection.execute("DROP TABLE faq_jobs")
         await connection.commit()
         async with connection.execute("SELECT * FROM chats") as cursor:
             previous = await cursor.fetchall()
@@ -66,10 +68,49 @@ async def test_version_five_adds_enabled_pause_without_changing_existing_rows(tm
         assert [tuple(row[:-1]) for row in current] == [tuple(row) for row in previous]
         chat = await chats.get_chat(-1001)
         assert chat.suggestions_enabled
-        assert (chat.similarity_threshold, chat.hybrid_threshold) == (.81, .42)
+        assert (chat.similarity_threshold, chat.hybrid_threshold) == (0.81, 0.42)
         with pytest.raises(sqlite3.IntegrityError):
             await connection.execute("UPDATE chats SET suggestions_enabled = 2")
         await connection.rollback()
+    finally:
+        await connection.close()
+
+
+@pytest.mark.asyncio
+async def test_version_six_adds_empty_faq_journals_preserving_all_existing_rows(
+    tmp_path,
+):
+    connection = await connect_database(tmp_path / "version-six.db")
+    try:
+        await schema.initialize_database(connection)
+        await ChatRepository(connection).ensure_chat(-1001, "Группа")
+        await connection.execute("DROP TABLE faq_items")
+        await connection.execute("DROP TABLE faq_jobs")
+        await connection.execute("PRAGMA user_version = 6")
+        await connection.commit()
+        tables = (
+            "chats",
+            "solutions",
+            "feedback",
+            "embedding_state",
+            "feedback_keyboards",
+        )
+        before = {}
+        for table in tables:
+            async with connection.execute(f"SELECT * FROM {table}") as cursor:
+                before[table] = [tuple(row) for row in await cursor.fetchall()]
+        await schema.initialize_database(connection)
+        await schema.initialize_database(connection)
+        for table in tables:
+            async with connection.execute(f"SELECT * FROM {table}") as cursor:
+                assert [tuple(row) for row in await cursor.fetchall()] == before[table]
+        for table in ("faq_jobs", "faq_items"):
+            async with connection.execute(f"SELECT COUNT(*) FROM {table}") as cursor:
+                assert (await cursor.fetchone())[0] == 0
+        async with connection.execute("PRAGMA user_version") as cursor:
+            assert (await cursor.fetchone())[0] == 7
+        async with connection.execute("PRAGMA foreign_key_check") as cursor:
+            assert await cursor.fetchone() is None
     finally:
         await connection.close()
 

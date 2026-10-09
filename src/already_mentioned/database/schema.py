@@ -6,7 +6,7 @@ import aiosqlite
 
 from already_mentioned.services.embeddings import E5_CONTRACT
 
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
 
 # Add consecutive target versions here when an existing table must change.
 # Each tuple runs inside the same transaction as its user_version update.
@@ -32,6 +32,21 @@ MIGRATIONS: dict[int, tuple[str, ...]] = {
     6: (
         "ALTER TABLE chats ADD COLUMN suggestions_enabled INTEGER NOT NULL "
         "DEFAULT 1 CHECK (suggestions_enabled IN (0, 1))",
+    ),
+    7: (
+        "CREATE TABLE faq_jobs (id TEXT PRIMARY KEY, chat_id INTEGER NOT NULL "
+        "REFERENCES chats(telegram_chat_id) ON DELETE CASCADE, "
+        "user_id INTEGER NOT NULL, "
+        "thread_id INTEGER, status TEXT NOT NULL, contract TEXT NOT NULL, "
+        "created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)",
+        "CREATE UNIQUE INDEX idx_faq_active_chat ON faq_jobs(chat_id) "
+        "WHERE status IN ('running', 'paused')",
+        "CREATE TABLE faq_items (job_id TEXT NOT NULL REFERENCES faq_jobs(id) "
+        "ON DELETE CASCADE, row_number INTEGER NOT NULL, question TEXT NOT NULL, "
+        "answer TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'pending', "
+        "question_message_id INTEGER, answer_message_id INTEGER, "
+        "question_vector BLOB, answer_vector BLOB, error_type TEXT, retry_at REAL, "
+        "PRIMARY KEY(job_id, row_number))",
     ),
 }
 
@@ -155,6 +170,18 @@ async def initialize_database(connection: aiosqlite.Connection) -> None:
             if version >= 6:
                 async with connection.execute(
                     "SELECT suggestions_enabled FROM chats LIMIT 0"
+                ):
+                    pass
+            if version >= 7:
+                async with connection.execute(
+                    "SELECT id, chat_id, user_id, thread_id, status, contract "
+                    "FROM faq_jobs LIMIT 0"
+                ):
+                    pass
+                async with connection.execute(
+                    "SELECT job_id, row_number, question, answer, status, "
+                    "question_message_id, answer_message_id, question_vector, "
+                    "answer_vector, error_type, retry_at FROM faq_items LIMIT 0"
                 ):
                     pass
         for target in range(version + 1, SCHEMA_VERSION + 1):

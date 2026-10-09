@@ -74,6 +74,11 @@ def group_menu():
             [button("Проверить подключение", "check")],
             [InlineKeyboardButton(text="Настройки", callback_data="cfg:home")],
             [button("Первый ответ", "example")],
+            [
+                InlineKeyboardButton(
+                    text="Добавить / загрузить FAQ", callback_data="faq:home"
+                )
+            ],
             [button("Как работает", "how"), button("Помощь", "help")],
         ]
     )
